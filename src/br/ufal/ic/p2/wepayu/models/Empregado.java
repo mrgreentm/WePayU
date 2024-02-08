@@ -4,7 +4,6 @@ import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 public class Empregado implements Serializable {
@@ -82,23 +81,9 @@ public class Empregado implements Serializable {
             throw new Exception(atributo + " nao pode ser nulo.");
         else return valor;
     }
-    private Double validaAtributo(Double valor) throws Exception {
-        if(valor == null)
-            throw new Exception("Salario" + " nao pode ser nulo.");
-        else return valor;
-    }
     private String validarTipo(String tipo) throws Exception {
         TipoEmpregado.validarTipo(tipo);
         return tipo;
-    }
-    private Double validarSalario(Double salario) throws Exception {
-        if(salario.isNaN())
-            throw new Exception("Salario deve ser numerico.");
-        if(salario == 0.0)
-            throw new Exception("Salario nao pode ser nulo.");
-        if(salario < 0)
-            throw new Exception("Salario deve ser nao-negativo.");
-        return salario;
     }
 
     @Override

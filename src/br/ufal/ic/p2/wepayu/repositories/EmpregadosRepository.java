@@ -20,10 +20,6 @@ public class EmpregadosRepository {
     public DadosEmpregadoSistemaFolha getAllDadosSistemaFolha() {
         return dadosEmpregadoSistemaFolhas;
     }
-    public DadosEmpregadoSistemaVendas getAllDadosSistemaVendas() {
-        return dadosEmpregadoSistemaVendas;
-    }
-    public DadosEmpregadoSistemaTaxaSindical getAllDadosSistemaTaxa() { return dadosEmpregadoSistemaTaxaSindical;}
 
     public EmpregadosRepository() {
         inicializaAtributos();

@@ -2,7 +2,6 @@ package br.ufal.ic.p2.wepayu.services.sistemavendas;
 
 import br.ufal.ic.p2.wepayu.exceptions.SistemaVendasException;
 import br.ufal.ic.p2.wepayu.models.CartaoVendaSistemaVendas;
-import br.ufal.ic.p2.wepayu.models.DadosEmpregadoSistemaVendas;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.utils.Mensagens;
 import br.ufal.ic.p2.wepayu.utils.Utils;
