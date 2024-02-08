@@ -239,23 +239,6 @@ public class Utils {
             throw new Exception("Empregado nao recebe em banco.");
         return metodoPagamento.getBanco().getContaCorrente();
     }
-    public static String formatarData(String data) {
-        String[] partesData = data.split("/");
-
-        // Preenche com zeros à esquerda se necessário
-        if (partesData.length == 2) {
-            partesData = new String[]{"0" + partesData[0], partesData[1]};
-        } else if (partesData.length == 3) {
-            if (partesData[0].length() == 1) {
-                partesData[0] = "0" + partesData[0];
-            }
-            if (partesData[1].length() == 1) {
-                partesData[1] = "0" + partesData[1];
-            }
-        }
-
-        return String.join("/", partesData);
-    }
     public static boolean validarData(String data, String campo) throws Exception {
         // Verifica se a string tem o formato correto
         if (!data.matches("^\\d{1,2}(\\/|-)\\d{1,2}(\\/|-)\\d{4}$")) {
@@ -295,13 +278,7 @@ public class Utils {
             arquivo.delete();
         } catch (Exception ignored) {}
 
-
     }
-    public static boolean fileExists(String filePath) {
-        Path path = Paths.get(filePath);
-        return Files.exists(path) && Files.isRegularFile(path);
-    }
-
 
     public static String formatarSalario(double valor) {
         // Define o padrão de formatação desejado com duas casas decimais
