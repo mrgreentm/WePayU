@@ -1,8 +1,18 @@
 package br.ufal.ic.p2.wepayu;
 
 import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
-import br.ufal.ic.p2.wepayu.exceptions.*;
-import br.ufal.ic.p2.wepayu.models.*;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.*;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.IdentificacaoMembroNulaException;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.MembroSindicatoInexistente;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.TaxaSindicalNaoNumericaException;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.TaxaSindicalNegativaException;
+import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
+import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoAssalariado;
+import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoComissionado;
+import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoHorista;
+import br.ufal.ic.p2.wepayu.models.metodopagamento.Banco;
+import br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento;
+import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.services.sistemafolha.SistemaFolha;
 import br.ufal.ic.p2.wepayu.services.sistemastaxasindical.SistemaTaxaSindical;

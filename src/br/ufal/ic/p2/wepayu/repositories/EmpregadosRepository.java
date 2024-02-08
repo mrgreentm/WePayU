@@ -1,6 +1,13 @@
 package br.ufal.ic.p2.wepayu.repositories;
 
-import br.ufal.ic.p2.wepayu.models.*;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.IdentificacaoMembroNulaException;
+import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
+import br.ufal.ic.p2.wepayu.models.sistemafolha.CartaoPontoSistemaFolha;
+import br.ufal.ic.p2.wepayu.models.sistemafolha.DadosEmpregadoSistemaFolha;
+import br.ufal.ic.p2.wepayu.models.sistemasindicato.CartaoSistemaTaxaServico;
+import br.ufal.ic.p2.wepayu.models.sistemasindicato.DadosEmpregadoSistemaTaxaSindical;
+import br.ufal.ic.p2.wepayu.models.sistemavendas.CartaoVendaSistemaVendas;
+import br.ufal.ic.p2.wepayu.models.sistemavendas.DadosEmpregadoSistemaVendas;
 import br.ufal.ic.p2.wepayu.utils.Mensagens;
 import br.ufal.ic.p2.wepayu.utils.Utils;
 
@@ -80,7 +87,7 @@ public class EmpregadosRepository {
     }
     public Empregado getEmpregadoById(String id) throws Exception {
         if(id.isBlank() || id.isEmpty())
-            throw new Exception(Mensagens.identificacaoNulaEmpregado);
+            throw new IdentificacaoMembroNulaException(Mensagens.identificacaoNulaEmpregado);
         Optional<Empregado> empregadoOptional = empregados.stream()
                 .filter(empregado -> empregado.getId().equals(id))
                 .findFirst();

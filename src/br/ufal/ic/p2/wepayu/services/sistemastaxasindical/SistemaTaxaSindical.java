@@ -1,7 +1,7 @@
 package br.ufal.ic.p2.wepayu.services.sistemastaxasindical;
 
-import br.ufal.ic.p2.wepayu.exceptions.SistemaTaxasSindicaisException;
-import br.ufal.ic.p2.wepayu.models.CartaoSistemaTaxaServico;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.SistemaTaxasSindicaisException;
+import br.ufal.ic.p2.wepayu.models.sistemasindicato.CartaoSistemaTaxaServico;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.utils.Mensagens;
 import br.ufal.ic.p2.wepayu.utils.Utils;

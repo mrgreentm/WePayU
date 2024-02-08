@@ -1,10 +1,18 @@
 package br.ufal.ic.p2.wepayu.utils;
 
 import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
-import br.ufal.ic.p2.wepayu.exceptions.AtributoInexistenteException;
-import br.ufal.ic.p2.wepayu.exceptions.EmpregadoNaoComissionadoException;
-import br.ufal.ic.p2.wepayu.exceptions.EmpregadoNaoSindicalizadoException;
-import br.ufal.ic.p2.wepayu.models.*;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.AtributoInexistenteException;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoSindicalizadoException;
+import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
+import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoAssalariado;
+import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoComissionado;
+import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoHorista;
+import br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento;
+import br.ufal.ic.p2.wepayu.models.sistemafolha.DadosEmpregadoSistemaFolha;
+import br.ufal.ic.p2.wepayu.models.sistemasindicato.DadosEmpregadoSistemaTaxaSindical;
+import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
+import br.ufal.ic.p2.wepayu.models.sistemavendas.DadosEmpregadoSistemaVendas;
 
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;

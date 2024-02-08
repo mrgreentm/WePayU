@@ -1,8 +1,8 @@
 package br.ufal.ic.p2.wepayu.services.sistemafolha;
 
-import br.ufal.ic.p2.wepayu.exceptions.SistemaFolhaException;
-import br.ufal.ic.p2.wepayu.models.CartaoPontoSistemaFolha;
-import br.ufal.ic.p2.wepayu.models.DadosEmpregadoSistemaFolha;
+import br.ufal.ic.p2.wepayu.exceptions.sistemafolha.SistemaFolhaException;
+import br.ufal.ic.p2.wepayu.models.sistemafolha.CartaoPontoSistemaFolha;
+import br.ufal.ic.p2.wepayu.models.sistemafolha.DadosEmpregadoSistemaFolha;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.utils.Mensagens;
 import br.ufal.ic.p2.wepayu.utils.Utils;
@@ -25,9 +25,9 @@ public class SistemaFolha {
 
     public String getHorasNormaisTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
         if(!validarData(dataFinal, "final"))
-            throw new SistemaFolhaException("Data final invalida.");
+            throw new SistemaFolhaException(Mensagens.dataFinalInvalida);
         if(!validarData(dataInicial, "inicial"))
-            throw new SistemaFolhaException("Data inicial invalida.");
+            throw new SistemaFolhaException(Mensagens.dataInicialInvalida);
         var dadosDoEmpregadoEmQuestao = dadosEmpregadoSistemaFolha.getCartoes().stream().filter(dados->dados.getIdEmpregado().equals(idEmpregado)).toList();
         if(dadosDoEmpregadoEmQuestao.isEmpty()){
             return "0";
@@ -39,9 +39,9 @@ public class SistemaFolha {
 
     public String getHorasExtrasTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
         if(!validarData(dataFinal, "final"))
-            throw new SistemaFolhaException("Data final invalida.");
+            throw new SistemaFolhaException(Mensagens.dataFinalInvalida);
         if(!validarData(dataInicial, "inicial"))
-            throw new SistemaFolhaException("Data inicial invalida.");
+            throw new SistemaFolhaException(Mensagens.dataInicialInvalida);
         var listaPonto = empregadosRepository.retornaTodosOsCartoesPeloIdDoEmpregado(idEmpregado);
         if(listaPonto.isEmpty()){
             return "0";
