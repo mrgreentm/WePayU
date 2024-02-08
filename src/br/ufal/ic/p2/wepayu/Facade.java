@@ -90,20 +90,20 @@ public class Facade {
     public String getVendasRealizadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         if(!empregado.getTipo().equals(TipoEmpregado.COMISSIONADO()))
-            throw new Exception("Empregado nao eh comissionado.");
+            throw new EmpregadoNaoComissionadoException(Mensagens.empregadoNaoComissionado);
         return sistemaVendas.getVendasRealizadas(idEmpregado, dataInicial, dataFinal);
     }
     public void lancaVenda(String idEmpregado, String data, String valor) throws Exception {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         if(!empregado.getTipo().equals(TipoEmpregado.COMISSIONADO()))
-            throw new Exception("Empregado nao eh comissionado.");
+            throw new EmpregadoNaoComissionadoException(Mensagens.empregadoNaoComissionado);
         sistemaVendas.lancaVenda(idEmpregado, data, valor);
     }
     public void lancaCartao(String idEmpregado, String data, String horas) throws Exception {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         if(empregado.getTipo().equals(TipoEmpregado.HORISTA()))
             sistemaFolha.lancaCartao(idEmpregado, data, horas);
-        else throw new Exception("Empregado nao eh horista.");
+        else throw new EmpregadoNaoHoristaException(Mensagens.empregadoNaoHorista);
     }
     public void alteraEmpregado(String idEmpregado, String atributo, String valor) throws Exception {
         if (!empregadosRepository.atributosEmpregados.contains(atributo)) {
