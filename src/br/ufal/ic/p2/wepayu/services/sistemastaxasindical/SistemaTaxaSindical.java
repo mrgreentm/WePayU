@@ -1,6 +1,10 @@
 package br.ufal.ic.p2.wepayu.services.sistemastaxasindical;
 
+import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoSindicalizadoException;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.IdentificacaoMembroNulaException;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.MembroSindicatoInexistente;
 import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.SistemaTaxasSindicaisException;
+import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.CartaoSistemaTaxaServico;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.utils.Mensagens;
@@ -63,5 +67,21 @@ public class SistemaTaxaSindical  {
         DecimalFormat df = new DecimalFormat("0.00", symbols);
         return df.format(vendas);
     }
+    public void validarEmpregadoSindicalizado(Empregado empregado) throws EmpregadoNaoSindicalizadoException, MembroSindicatoInexistente {
+        if (empregado == null) {
+            throw new MembroSindicatoInexistente(Mensagens.membroSindicatoInexistente);
+        }
+        if (!empregado.getMembroSindicato().getSindicalizado()) {
+            throw new EmpregadoNaoSindicalizadoException(Mensagens.empregadoNaoSindicalizado);
+        }
+    }
+    public void validarIdMembro(String idMembro, List<String> listaIdMembros) throws Exception {
+        if (idMembro == null || idMembro.isBlank()) {
+            throw new IdentificacaoMembroNulaException(Mensagens.identificacaoNulaMembro);
+        }
 
+        if (!listaIdMembros.contains(idMembro)) {
+            throw new MembroSindicatoInexistente(Mensagens.membroSindicatoInexistente);
+        }
+    }
 }

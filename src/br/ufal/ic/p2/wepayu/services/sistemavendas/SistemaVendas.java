@@ -1,6 +1,9 @@
 package br.ufal.ic.p2.wepayu.services.sistemavendas;
 
+import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
 import br.ufal.ic.p2.wepayu.exceptions.sistemavendas.SistemaVendasException;
+import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
 import br.ufal.ic.p2.wepayu.models.sistemavendas.CartaoVendaSistemaVendas;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.utils.Mensagens;
@@ -60,5 +63,9 @@ public class SistemaVendas {
         symbols.setDecimalSeparator(',');
         DecimalFormat df = new DecimalFormat("0.00", symbols);
         return df.format(vendas);
+    }
+    public void validarEmpregadoComissionado(Empregado empregado) throws EmpregadoNaoComissionadoException {
+        if (!empregado.getTipo().equals(TipoEmpregado.COMISSIONADO()))
+            throw new EmpregadoNaoComissionadoException(Mensagens.empregadoNaoComissionado);
     }
 }

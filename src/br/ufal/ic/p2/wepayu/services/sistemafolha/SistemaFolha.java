@@ -1,6 +1,9 @@
 package br.ufal.ic.p2.wepayu.services.sistemafolha;
 
+import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoHoristaException;
 import br.ufal.ic.p2.wepayu.exceptions.sistemafolha.SistemaFolhaException;
+import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
 import br.ufal.ic.p2.wepayu.models.sistemafolha.CartaoPontoSistemaFolha;
 import br.ufal.ic.p2.wepayu.models.sistemafolha.DadosEmpregadoSistemaFolha;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
@@ -50,14 +53,16 @@ public class SistemaFolha {
         return formatarSomaHoras(horas);
     }
 
-    public void lancaCartao(String idEmpregado, String data, String horas) throws Exception {
-        if(!validarData(data, ""))
-            throw new SistemaFolhaException(Mensagens.dataInvalida);
-        if(Utils.converterStringParaDouble(horas) <= 0)
-            throw new SistemaFolhaException(Mensagens.horasNegativas);
-        if(idEmpregado.isEmpty() || idEmpregado.isBlank())
-            throw new SistemaFolhaException(Mensagens.identificacaoNulaEmpregado);
-        empregadosRepository.addDadoEmpregadoSistemaFolha(idEmpregado, data, horas);
+    public void lancaCartao(Empregado empregado, String idEmpregado, String data, String horas) throws Exception {
+        if (empregado.getTipo().equals(TipoEmpregado.HORISTA())){
+            if(!validarData(data, ""))
+                throw new SistemaFolhaException(Mensagens.dataInvalida);
+            if(Utils.converterStringParaDouble(horas) <= 0)
+                throw new SistemaFolhaException(Mensagens.horasNegativas);
+            if(idEmpregado.isEmpty() || idEmpregado.isBlank())
+                throw new SistemaFolhaException(Mensagens.identificacaoNulaEmpregado);
+            empregadosRepository.addDadoEmpregadoSistemaFolha(idEmpregado, data, horas);
+        }else throw new EmpregadoNaoHoristaException(Mensagens.empregadoNaoHorista);
 
     }
     public static double calcularSomaHorasExtrasNoIntervalo(List<CartaoPontoSistemaFolha> listaPonto, String dataInicial, String dataFinal) throws Exception {
@@ -108,5 +113,9 @@ public class SistemaFolha {
         }
 
         return horasTrabalhadas;
+    }
+    public void validarEmpregadoHorista(Empregado empregado) throws EmpregadoNaoHoristaException {
+        if (!empregado.getTipo().equals(TipoEmpregado.HORISTA()))
+            throw new EmpregadoNaoHoristaException(Mensagens.empregadoNaoHorista);
     }
 }
