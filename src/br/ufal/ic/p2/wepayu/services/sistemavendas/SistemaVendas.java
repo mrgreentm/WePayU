@@ -30,7 +30,7 @@ public class SistemaVendas {
 
     public void lancaVenda(String idEmpregado, String data, String valor) throws Exception {
         if(!validarData(data, ""))
-            throw new SistemaVendasException(Mensagens.dataInicialInvalida);
+            throw new SistemaVendasException(Mensagens.dataInvalida);
         if(Utils.converterStringParaDouble(valor) <= 0)
             throw new SistemaVendasException(Mensagens.valorNegativo);
         if(idEmpregado.isEmpty() || idEmpregado.isBlank())

@@ -291,7 +291,10 @@ public class Utils {
         File arquivo = new File(caminho);
 
         // Tenta excluir o arquivo
-        boolean foiExcluido = arquivo.delete();
+        try {
+            arquivo.delete();
+        } catch (Exception ignored) {}
+
 
     }
     public static boolean fileExists(String filePath) {
