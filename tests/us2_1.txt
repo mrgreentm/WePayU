@@ -1,0 +1,15 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de remocao de empregado (teste de persistencia)
+
+expectError "Nao ha empregado com esse nome." getEmpregadoPorNome nome="Joao da Silva" indice=1
+
+id2=getEmpregadoPorNome nome="Maria" indice=1
+expect "Maria" getAtributoEmpregado emp=${id2} atributo=nome
+expect "Rua dos Jooes, 333 - Campina Grande" getAtributoEmpregado emp=${id2} atributo=endereco
+expect horista getAtributoEmpregado emp=${id2} atributo=tipo
+expect 23,00 getAtributoEmpregado emp=${id2} atributo=salario

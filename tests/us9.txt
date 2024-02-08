@@ -1,0 +1,148 @@
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User story 9 - Agendas de Pagamentos
+
+zerarSistema
+
+# empregados agora possuem um novo atributo: agenda de pagamento;
+# modifique os comandos alteraEmpregado e getAtributoEmpregado para tratar esse novo atributo;
+# por default, as agendas de pagamento sao as seguintes: "semanal 5" para horistas, "mensal $" para assalariados 
+# e "semanal 2 5" para comissionados;
+
+# teste de agendas de pagamento default
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=horista salario=23
+expect "semanal 5" getAtributoEmpregado emp=${id1} atributo=agendaPagamento
+id2=criarEmpregado nome="Mariazinha" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=assalariado salario=2300,45
+expect "mensal $" getAtributoEmpregado emp=${id2} atributo=agendaPagamento
+id3=criarEmpregado nome="Gaiato Vendedor" endereco="Rua dos Bufoes, 333 - Campina Grande" \
+	tipo=comissionado salario=2300,45 comissao=0,05
+expect "semanal 2 5" getAtributoEmpregado emp=${id3} atributo=agendaPagamento
+
+# mudando as agendas de pagamento dos empregados
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="mensal $"
+expect "mensal $" getAtributoEmpregado emp=${id1} atributo=agendaPagamento
+alteraEmpregado emp=${id2} atributo=agendaPagamento valor1="semanal 2 5"
+expect "semanal 2 5" getAtributoEmpregado emp=${id2} atributo=agendaPagamento
+alteraEmpregado emp=${id3} atributo=agendaPagamento valor1="semanal 5"
+expect "semanal 5" getAtributoEmpregado emp=${id3} atributo=agendaPagamento
+
+# so pode escolher uma agenda de pagamento entre as disponiveis (por default, apenas as tres descritas acima)
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="mensal 1"
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="semanal 2"
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="semanal 2 3"
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="todo dia"
+
+# testando se agendas de pagamento modificadas funcionam corretamente
+# primeiro caso: empregado horista que querem receber por mes
+zerarSistema
+id1=criarEmpregado nome="Alfa Um Horista" endereco="Rua Alfa, 1 - Atenas" tipo=horista salario=13
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="mensal $"
+lancaCartao emp=${id1} data=1/1/2005 horas=8
+lancaCartao emp=${id1} data=2/1/2005 horas=8
+lancaCartao emp=${id1} data=3/1/2005 horas=8
+lancaCartao emp=${id1} data=4/1/2005 horas=8
+lancaCartao emp=${id1} data=30/1/2005 horas=8
+expect 0,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=7/1/2005
+expect 0,00 totalFolha data=14/1/2005
+expect 0,00 totalFolha data=21/1/2005
+expect 0,00 totalFolha data=28/1/2005
+expect 520,00 totalFolha data=31/1/2005
+
+# segundo caso: empregado horista que quer receber a cada duas semanas
+zerarSistema
+id1=criarEmpregado nome="Alfa Um Horista" endereco="Rua Alfa, 1 - Atenas" tipo=horista salario=13
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="semanal 2 5"
+lancaCartao emp=${id1} data=1/1/2005 horas=8
+lancaCartao emp=${id1} data=2/1/2005 horas=8
+lancaCartao emp=${id1} data=3/1/2005 horas=8
+lancaCartao emp=${id1} data=4/1/2005 horas=8
+lancaCartao emp=${id1} data=5/1/2005 horas=8
+expect 0,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=7/1/2005
+expect 520,00 totalFolha data=14/1/2005
+lancaCartao emp=${id1} data=17/1/2005 horas=8
+lancaCartao emp=${id1} data=18/1/2005 horas=8
+lancaCartao emp=${id1} data=19/1/2005 horas=8
+expect 0,00 totalFolha data=21/1/2005
+expect 312,00 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+
+# terceiro caso: empregado assalariado que quer receber semanalmente (faz o calculo das 52 semanas no ano)
+# valor devido = salario menos taxas, etc. (nao testado)
+zerarSistema
+id2=criarEmpregado nome="Beta Dois Assalariado" endereco="Rua Beta, 2 - Esparta" \
+	tipo=assalariado salario=2800
+alteraEmpregado emp=${id2} atributo=agendaPagamento valor1="semanal 5"
+expect 0,00 totalFolha data=1/1/2005
+expect 646,15 totalFolha data=7/1/2005
+expect 646,15 totalFolha data=14/1/2005
+expect 646,15 totalFolha data=21/1/2005
+expect 646,15 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+
+# quarto caso: empregado assalariado que quer receber a cada duas semanas (faz o calculo das 52 semanas, paga a cada duas)
+zerarSistema
+id2=criarEmpregado nome="Beta Dois Assalariado" endereco="Rua Beta, 2 - Esparta" \
+	tipo=assalariado salario=2800
+alteraEmpregado emp=${id2} atributo=agendaPagamento valor1="semanal 2 5"
+expect 0,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=7/1/2005
+expect 1292,30totalFolha data=14/1/2005
+expect 0,00 totalFolha data=21/1/2005
+expect 1292,30 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+
+# quinto caso: empregado comissionado que quer receber mensalmente
+zerarSistema
+id3=criarEmpregado nome="Gama Tres Comissionado" endereco="Rua Gama, 3 - Corinto" \
+	tipo=comissionado salario=1300,00 comissao=0,11
+alteraEmpregado emp=${id3} atributo=agendaPagamento valor1="mensal $"
+lancaVenda emp=${id3} data=1/1/2005 valor=100
+lancaVenda emp=${id3} data=2/1/2005 valor=200
+lancaVenda emp=${id3} data=30/1/2005 valor=300
+expect 0,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=7/1/2005
+expect 0,00 totalFolha data=14/1/2005
+expect 0,00 totalFolha data=21/1/2005
+expect 0,00 totalFolha data=28/1/2005
+expect 1366,00 totalFolha data=31/1/2005
+
+# sexto caso: empregado comissionado que quer semanalmente
+zerarSistema
+id3=criarEmpregado nome="Gama Tres Comissionado" endereco="Rua Gama, 3 - Corinto" \
+	tipo=comissionado salario=2800,00 comissao=0,11
+alteraEmpregado emp=${id3} atributo=agendaPagamento valor1="semanal 5"
+lancaVenda emp=${id3} data=1/1/2005 valor=100
+lancaVenda emp=${id3} data=2/1/2005 valor=200
+lancaVenda emp=${id3} data=16/1/2005 valor=200
+lancaVenda emp=${id3} data=30/1/2005 valor=300
+expect 0,00 totalFolha data=1/1/2005
+expect 679,15 totalFolha data=7/1/2005
+expect 646,15 totalFolha data=14/1/2005
+expect 668,15 totalFolha data=21/1/2005
+expect 646,15 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+
+# primeira parte do teste de persistencia
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=horista salario=23
+id2=criarEmpregado nome="Mariazinha" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=assalariado salario=2300,45
+id3=criarEmpregado nome="Gaiato Vendedor" endereco="Rua dos Bufoes, 333 - Campina Grande" \
+	tipo=comissionado salario=2300,45 comissao=0,05
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="mensal $"
+alteraEmpregado emp=${id2} atributo=agendaPagamento valor1="semanal 2 5"
+alteraEmpregado emp=${id3} atributo=agendaPagamento valor1="semanal 5"
+
+encerrarSistema
+quit

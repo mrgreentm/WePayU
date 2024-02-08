@@ -1,0 +1,52 @@
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de lancamento de taxa de servico
+
+zerarSistema
+
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=comissionado salario=2300 comissao=0,05
+alteraEmpregado emp=${id1} atributo=sindicalizado valor=true idSindicato=s128 taxaSindical=1,00
+id2=criarEmpregado nome="Mariazinha" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=assalariado salario=2300
+alteraEmpregado emp=${id2} atributo=sindicalizado valor=true idSindicato=s129 taxaSindical=1,00
+id3=criarEmpregado nome="Gaiato Vendedor" endereco="Rua dos Bufoes, 333 - Campina Grande" \
+	tipo=horista salario=1300
+alteraEmpregado emp=${id3} atributo=sindicalizado valor=true idSindicato=s130 taxaSindical=1,00
+id4=criarEmpregado nome="Gorete" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=horista salario=1300
+alteraEmpregado emp=${id4} atributo=sindicalizado valor=false
+
+expect 0,00 getTaxasServico emp=${id1} dataInicial=1/1/2005 dataFinal=31/12/2005
+lancaTaxaServico membro=s128 data=1/1/2005 valor=80
+lancaTaxaServico membro=s128 data=2/1/2005 valor=85,5
+lancaTaxaServico membro=s128 data=3/1/2005 valor=90
+lancaTaxaServico membro=s128 data=4/1/2005 valor=60
+lancaTaxaServico membro=s129 data=3/1/2005 valor=100
+# uma data sempre significa 00:00 horas daquele dia
+expect 80,00 getTaxasServico emp=${id1} dataInicial=1/1/2005 dataFinal=02/01/2005
+expect 175,50 getTaxasServico emp=${id1} dataInicial=2/1/2005 dataFinal=4/1/2005
+expect 0,00 getTaxasServico emp=${id1} dataInicial=1/1/2005 dataFinal=1/1/2005
+expect 0,00 getTaxasServico emp=${id1} dataInicial=5/1/2005 dataFinal=1/2/2005
+
+expect 100,00 getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=31/12/2005
+
+# teste de erros
+expectError "Identificacao do membro nao pode ser nula." lancaTaxaServico membro="" data=1/1/2005 valor=80
+expectError "Membro nao existe." lancaTaxaServico membro=abc data=1/1/2005 valor=80
+expectError "Data invalida." lancaTaxaServico membro=s128 data=1/13/2005 valor=80
+expectError "Valor deve ser positivo." lancaTaxaServico membro=s128 data=1/12/2005 valor=0
+expectError "Valor deve ser positivo." lancaTaxaServico membro=s128 data=1/12/2005 valor=-1
+
+expectError "Empregado nao eh sindicalizado." getTaxasServico emp=${id4} dataInicial=1/1/2005 dataFinal=2/1/2005
+expectError "Data inicial invalida." getTaxasServico emp=${id1} dataInicial=41/1/2005 dataFinal=2/1/2005
+expectError "Data final invalida." getTaxasServico emp=${id1} dataInicial=1/1/2005 dataFinal=30/2/2005
+expectError "Data inicial nao pode ser posterior aa data final." getTaxasServico emp=${id1} dataInicial=2/1/2005 dataFinal=1/1/2005
+
+expectError "Ha outro empregado com esta identificacao de sindicato" alteraEmpregado emp=${id4} atributo=sindicalizado valor=true idSindicato=s129 taxaSindical=1,00
+
+encerrarSistema
+quit

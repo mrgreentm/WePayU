@@ -1,0 +1,239 @@
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de pagamento
+# Numa folha real, teriamos que produzir outras saidas tais como 
+# contracheques, lista de depositos para cada banco, lista de cheques para gerente financeiro, recibos, 
+# lancamentos na contabilidade, etc.
+# Aqui, ficaremos contentes so com um resumo dos pagamentos da folha
+
+# ESCLARECIMENTO SOBRE TAXAS SINDICAIS
+# As taxas sindicais passaram a ser indicadas nos testes como um valor diario. Isso e necessario porque os diferentes
+# tipos de empregados recebem com periodicidade diferente (mensal, quinzenal, semanal, e ainda podem ser criadas outras,
+# como voces verao nos proximos milestones). Portanto, agora, em vez de valores como 30 ou 40 reais, voces verao 1 ou
+# 1,20 reais. Cada vez que um empregado recebe, nao importa em que dia, ele tem deduzido o valor correspondente das taxas
+# sindicais desde o ultimo pagamento (ex.: com taxa sindical de 1 real, assalariado paga 31 reais em janeiro, 28 em 
+# fevereiro, etc.; horista paga 7 reais a cada semana, comissionado paga 14 a cada quinzena)
+# 
+# Obs. 1: horista nao pode ter contracheque negativo; se trabalhou durante o periodo menos do que o necessario para pagar
+# a taxa sindical, no dia que deveria receber, a folha vem zerada, e o debito com o sindicato e diminuido do valor que ele
+# receberia (isso nao esta testado, mas se preparem, porque podemos colocar nos testes extra)
+# 
+# Obs. 2: as taxas extra sao pontuais e cobradas sempre no proximo pagamento, valendo a mesma regra anterior de que nao
+# pode haver contracheque negativo
+
+# ESCLARECIMENTO SOBRE DATAS DE CONTRATO DE EMPREGADOS
+# Como falta um comando para especificar a data de contrato de um empregado (poderia ser tambem atributo de criarEmpregado),
+# considerem, para saber em que dia o empregado devera ser pago, para os testes abaixo, as seguintes regras:
+# 1 - empregados horistas sao contratados no primeiro dia em que lancarem um cartao (nao necessariamente 1/1/2005)
+# 2 - empregados assalariados (e comissionados) sao contratados sempre no dia 1/1/2005
+
+# ESCLARECIMENTO SOBRE PAGAMENTO QUINZENAL DE COMISSIONADOS
+# O "quinzenal" nao se refere a segunda semana do mes, e sim a periodicidade  de 15 em 15 dias a partir do dia de contrato.
+# Coincidentemente, o dia 1/1/2005 e um sabado, o que faz o primeiro pagamento do comissionado cair exatamente na 
+# sexta-feira, mas o primeiro pagamento deve ser feito na sexta-feira da segunda semana de trabalho, e de 15 em 15 dias 
+# a partir dai. 
+# Assim, como o ano tem 52 semanas, havera 26 pagamentos, e nao 24. Consequentemente, o salario base do comissionado e
+# calculado como salario*12/52.
+
+zerarSistema
+
+# empregado horista, sem horas, sem sindicato
+id1=criarEmpregado nome="Fernanda Montenegro" endereco="end1" tipo=horista salario=12,50
+alteraEmpregado emp=${id1} atributo=sindicalizado valor=false
+alteraEmpregado emp=${id1} atributo=metodoPagamento valor=emMaos
+
+# empregado horista, com horas, sem overtime, sem sindicato
+id2=criarEmpregado nome="Paloma Duarte" endereco="end2" tipo=horista salario=11,25
+alteraEmpregado emp=${id2} atributo=sindicalizado valor=false
+alteraEmpregado emp=${id2} atributo=metodoPagamento valor1=banco banco="Banco do Brasil" agencia=1591-1 contaCorrente=51000-0
+lancaCartao emp=${id2} data=1/1/2005 horas=8
+lancaCartao emp=${id2} data=2/1/2005 horas=7
+lancaCartao emp=${id2} data=1/2/2005 horas=8
+lancaCartao emp=${id2} data=2/2/2005 horas=7
+lancaCartao emp=${id2} data=1/12/2005 horas=8
+lancaCartao emp=${id2} data=2/12/2005 horas=7
+
+# empregado horista, com horas, com overtime, sem sindicato
+id3=criarEmpregado nome="Lavinia Vlasak" endereco="end3" tipo=horista salario=11,21
+alteraEmpregado emp=${id3} atributo=sindicalizado valor=false
+alteraEmpregado emp=${id3} atributo=metodoPagamento valor1=banco banco="Banco do Brasil" agencia=1591-1 contaCorrente=51001-1
+lancaCartao emp=${id3} data=1/1/2005 horas=10
+lancaCartao emp=${id3} data=2/1/2005 horas=7
+lancaCartao emp=${id3} data=1/2/2005 horas=8
+lancaCartao emp=${id3} data=2/2/2005 horas=7
+lancaCartao emp=${id3} data=1/12/2005 horas=12
+lancaCartao emp=${id3} data=2/12/2005 horas=7
+
+# empregado horista, com horas, com overtime, com sindicato, sem taxas adicionais
+id4=criarEmpregado nome="Claudia Abreu" endereco="end4" tipo=horista salario=11,00
+alteraEmpregado emp=${id4} atributo=sindicalizado valor=true idSindicato=s123 taxaSindical=1,00
+alteraEmpregado emp=${id4} atributo=metodoPagamento valor=emMaos
+lancaCartao emp=${id4} data=1/1/2005 horas=10
+lancaCartao emp=${id4} data=2/1/2005 horas=7
+lancaCartao emp=${id4} data=1/2/2005 horas=8
+lancaCartao emp=${id4} data=2/2/2005 horas=7
+lancaCartao emp=${id4} data=1/12/2005 horas=12
+lancaCartao emp=${id4} data=2/12/2005 horas=7
+
+# empregado horista, com horas, com overtime, com sindicato, com taxas adicionais
+id5=criarEmpregado nome="Claudia Raia" endereco="end5" tipo=horista salario=10,00
+alteraEmpregado emp=${id5} atributo=sindicalizado valor=true idSindicato=s124 taxaSindical=1,20
+alteraEmpregado emp=${id5} atributo=metodoPagamento valor1=banco banco="Banco do Brasil" agencia=1591-1 contaCorrente=51002-2
+lancaCartao emp=${id5} data=1/1/2005 horas=10
+lancaCartao emp=${id5} data=2/1/2005 horas=7
+lancaCartao emp=${id5} data=1/2/2005 horas=8
+lancaCartao emp=${id5} data=2/2/2005 horas=7
+lancaCartao emp=${id5} data=1/12/2005 horas=12
+lancaCartao emp=${id5} data=2/12/2005 horas=7
+lancaTaxaServico membro=s124 data=1/1/2005 valor=80
+lancaTaxaServico membro=s124 data=1/12/2005 valor=80
+
+# empregado assalariado, sem sindicato
+id6=criarEmpregado nome="Natalia do Valle" endereco="end6" tipo=assalariado salario=1000,00
+alteraEmpregado emp=${id6} atributo=sindicalizado valor=false
+alteraEmpregado emp=${id6} atributo=metodoPagamento valor1=correios
+
+# empregado assalariado, com sindicato, sem taxas adicionais
+id7=criarEmpregado nome="Regina Duarte" endereco="end7" tipo=assalariado salario=1100,00
+alteraEmpregado emp=${id7} atributo=sindicalizado valor=true idSindicato=s125 taxaSindical=1,00
+alteraEmpregado emp=${id7} atributo=metodoPagamento valor1=correios
+
+# empregado assalariado, com sindicato, com taxas adicionais
+id8=criarEmpregado nome="Flavia Alessandra" endereco="end8" tipo=assalariado salario=1200,00
+alteraEmpregado emp=${id8} atributo=sindicalizado valor=true idSindicato=s126 taxaSindical=1,00
+alteraEmpregado emp=${id8} atributo=metodoPagamento valor1=correios
+lancaTaxaServico membro=s126 data=1/1/2005 valor=70
+lancaTaxaServico membro=s126 data=1/12/2005 valor=75
+
+# empregado commisionado, sem vendas, sem sindicato
+id9=criarEmpregado nome="Deborah Secco" endereco="end9" tipo=comissionado salario=1300,00 comissao=0,11
+alteraEmpregado emp=${id9} atributo=sindicalizado valor=false
+alteraEmpregado emp=${id9} atributo=metodoPagamento valor1=correios
+
+# empregado commisionado, com vendas, sem sindicato
+id10=criarEmpregado nome="Ana Paula Arosio" endereco="end10" tipo=comissionado salario=1400,00 comissao=0,12
+alteraEmpregado emp=${id10} atributo=sindicalizado valor=false
+alteraEmpregado emp=${id10} atributo=metodoPagamento valor1=correios
+lancaVenda emp=${id10} data=1/1/2005 valor=123,45
+lancaVenda emp=${id10} data=2/1/2005 valor=200
+lancaVenda emp=${id10} data=1/2/2005 valor=123,1
+lancaVenda emp=${id10} data=2/2/2005 valor=500
+lancaVenda emp=${id10} data=1/12/2005 valor=600
+lancaVenda emp=${id10} data=2/12/2005 valor=800
+
+# empregado commisionado, com vendas, com sindicato, sem taxas adicionais
+id11=criarEmpregado nome="Suzana Vieira" endereco="end11" tipo=comissionado salario=1500,00 comissao=0,13
+alteraEmpregado emp=${id11} atributo=sindicalizado valor=true idSindicato=s127 taxaSindical=1,00
+alteraEmpregado emp=${id11} atributo=metodoPagamento valor1=correios
+lancaVenda emp=${id11} data=1/1/2005 valor=123,45
+lancaVenda emp=${id11} data=2/1/2005 valor=200
+lancaVenda emp=${id11} data=1/2/2005 valor=123,1
+lancaVenda emp=${id11} data=2/2/2005 valor=500
+lancaVenda emp=${id11} data=1/12/2005 valor=600
+lancaVenda emp=${id11} data=2/12/2005 valor=800
+
+# empregado commisionado, com vendas, com sindicato, com taxas adicionais
+id12=criarEmpregado nome="Maite Proenca" endereco="end12" tipo=comissionado salario=1600,00 comissao=0,14
+alteraEmpregado emp=${id12} atributo=sindicalizado valor=true idSindicato=s128 taxaSindical=1,00
+alteraEmpregado emp=${id12} atributo=metodoPagamento valor1=correios
+lancaVenda emp=${id12} data=1/1/2005 valor=123,45
+lancaVenda emp=${id12} data=2/1/2005 valor=200
+lancaVenda emp=${id12} data=1/2/2005 valor=123,1
+lancaVenda emp=${id12} data=2/2/2005 valor=500
+lancaVenda emp=${id12} data=1/12/2005 valor=600
+lancaVenda emp=${id12} data=2/12/2005 valor=800
+lancaTaxaServico membro=s128 data=1/1/2005 valor=70
+lancaTaxaServico membro=s128 data=1/12/2005 valor=75
+
+# totalFolha nao roda a folha mas diz quanto seria o total se rodasse
+expect 0,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=2/1/2005
+expect 0,00 totalFolha data=3/1/2005
+expect 0,00 totalFolha data=4/1/2005
+expect 0,00 totalFolha data=5/1/2005
+expect 0,00 totalFolha data=6/1/2005
+expect 748,53 totalFolha data=7/1/2005
+rodaFolha data=7/1/2005 saida=folha-2005-01-07.txt
+equalFiles file1=ok/folha-2005-01-07.txt file2=folha-2005-01-07.txt
+expect 0,00 totalFolha data=8/1/2005
+expect 0,00 totalFolha data=9/1/2005
+expect 0,00 totalFolha data=10/1/2005
+expect 0,00 totalFolha data=11/1/2005
+expect 0,00 totalFolha data=12/1/2005
+expect 0,00 totalFolha data=13/1/2005
+expect 2803,04 totalFolha data=14/1/2005
+rodaFolha data=14/1/2005 saida=folha-2005-01-14.txt
+equalFiles file1=ok/folha-2005-01-14.txt file2=folha-2005-01-14.txt
+expect 0,00 totalFolha data=15/1/2005
+expect 0,00 totalFolha data=16/1/2005
+expect 0,00 totalFolha data=17/1/2005
+expect 0,00 totalFolha data=18/1/2005
+expect 0,00 totalFolha data=19/1/2005
+expect 0,00 totalFolha data=20/1/2005
+expect 0,00 totalFolha data=21/1/2005
+rodaFolha data=21/1/2005 saida=folha-2005-01-21.txt
+equalFiles file1=ok/folha-2005-01-21.txt file2=folha-2005-01-21.txt
+expect 0,00 totalFolha data=22/1/2005
+expect 0,00 totalFolha data=23/1/2005
+expect 0,00 totalFolha data=24/1/2005
+expect 0,00 totalFolha data=25/1/2005
+expect 0,00 totalFolha data=26/1/2005
+expect 0,00 totalFolha data=27/1/2005
+expect 2676,91 totalFolha data=28/1/2005
+rodaFolha data=28/1/2005 saida=folha-2005-01-28.txt
+equalFiles file1=ok/folha-2005-01-28.txt file2=folha-2005-01-28.txt
+expect 0,00 totalFolha data=29/1/2005
+expect 0,00 totalFolha data=30/1/2005
+expect 3300,00 totalFolha data=31/1/2005
+rodaFolha data=31/1/2005 saida=folha-2005-01-31.txt
+equalFiles file1=ok/folha-2005-01-31.txt file2=folha-2005-01-31.txt
+expect 0,00 totalFolha data=1/2/2005
+expect 0,00 totalFolha data=2/2/2005
+expect 0,00 totalFolha data=3/2/2005
+expect 651,90 totalFolha data=4/2/2005
+rodaFolha data=4/2/2005 saida=folha-2005-02-04.txt
+equalFiles file1=ok/folha-2005-02-04.txt file2=folha-2005-02-04.txt
+expect 0,00 totalFolha data=5/2/2005
+expect 0,00 totalFolha data=6/2/2005
+expect 0,00 totalFolha data=7/2/2005
+expect 0,00 totalFolha data=8/2/2005
+expect 0,00 totalFolha data=9/2/2005
+expect 0,00 totalFolha data=10/2/2005
+expect 2919,91 totalFolha data=11/2/2005
+rodaFolha data=11/2/2005 saida=folha-2005-02-11.txt
+equalFiles file1=ok/folha-2005-02-11.txt file2=folha-2005-02-11.txt
+expect 0,00 totalFolha data=12/2/2005
+expect 0,00 totalFolha data=13/2/2005
+expect 0,00 totalFolha data=14/2/2005
+expect 0,00 totalFolha data=15/2/2005
+expect 0,00 totalFolha data=16/2/2005
+expect 0,00 totalFolha data=17/2/2005
+expect 0,00 totalFolha data=18/2/2005
+rodaFolha data=18/2/2005 saida=folha-2005-02-18.txt
+equalFiles file1=ok/folha-2005-02-18.txt file2=folha-2005-02-18.txt
+expect 0,00 totalFolha data=19/2/2005
+expect 0,00 totalFolha data=20/2/2005
+expect 0,00 totalFolha data=21/2/2005
+expect 0,00 totalFolha data=22/2/2005
+expect 0,00 totalFolha data=23/2/2005
+expect 0,00 totalFolha data=24/2/2005
+expect 2676,91 totalFolha data=25/2/2005
+rodaFolha data=25/2/2005 saida=folha-2005-02-25.txt
+equalFiles file1=ok/folha-2005-02-25.txt file2=folha-2005-02-25.txt
+expect 0,00 totalFolha data=26/2/2005
+expect 0,00 totalFolha data=27/2/2005
+expect 3300,00 totalFolha data=28/2/2005
+# rodar a folha duas vezes deve dar o mesmo resultado
+rodaFolha data=28/2/2005 saida=folha-2005-02-28.txt
+equalFiles file1=ok/folha-2005-02-28.txt file2=folha-2005-02-28.txt
+rodaFolha data=28/2/2005 saida=folha-2005-02-28.txt
+equalFiles file1=ok/folha-2005-02-28.txt file2=folha-2005-02-28.txt
+
+# Outros testes que estamos ignorando:
+#    situacao quando o empregado acabou de ser contratado e deve receber parcialmente na primeira folha
+#    muitos, muitos impostos de varios tipos que tem que ser descontados,
+#    13o salario
+#    etc. etc.

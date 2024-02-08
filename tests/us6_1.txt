@@ -1,0 +1,22 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de alteracao de empregado (persistencia)
+
+id1=getEmpregadoPorNome nome="Joao da Silva" indice=1
+
+expect "Joao da Silva" getAtributoEmpregado emp=${id1} atributo=nome
+expect "Rua dos Jooes, 333 - Campina Grande" getAtributoEmpregado emp=${id1} atributo=endereco
+expect comissionado getAtributoEmpregado emp=${id1} atributo=tipo
+expect 23,00 getAtributoEmpregado emp=${id1} atributo=salario
+expect 0,02 getAtributoEmpregado emp=${id1} atributo=comissao
+expect emMaos getAtributoEmpregado emp=${id1} atributo=metodoPagamento
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=banco
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=agencia
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=contaCorrente
+expect false getAtributoEmpregado emp=${id1} atributo=sindicalizado
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=idSindicato
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=taxaSindical

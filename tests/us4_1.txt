@@ -1,0 +1,17 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de lancamento de resultado de venda (persistencia)
+
+id1=getEmpregadoPorNome nome="Joao da Silva" indice=1
+id2=getEmpregadoPorNome nome="Mariazinha" indice=1
+
+expect 800,00 getVendasRealizadas emp=${id1} dataInicial=1/1/2005 dataFinal=02/01/2005
+expect 1750,50 getVendasRealizadas emp=${id1} dataInicial=2/1/2005 dataFinal=4/1/2005
+expect 0,00 getVendasRealizadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/1/2005
+expect 0,00 getVendasRealizadas emp=${id1} dataInicial=5/1/2005 dataFinal=1/2/2005
+
+expect 1000,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=31/12/2005

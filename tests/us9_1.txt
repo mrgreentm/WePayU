@@ -1,0 +1,15 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de ordem de pagamento (persistencia)
+
+id1=getEmpregadoPorNome nome="Joao da Silva" indice=1
+id2=getEmpregadoPorNome nome="Mariazinha" indice=1
+id3=getEmpregadoPorNome nome="Gaiato Vendedor" indice=1
+expect "mensal $" getAtributoEmpregado emp=${id1} atributo=agendaPagamento
+expect "semanal 2 5" getAtributoEmpregado emp=${id2} atributo=agendaPagamento
+expect "semanal 5" getAtributoEmpregado emp=${id3} atributo=agendaPagamento
+

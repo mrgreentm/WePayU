@@ -1,0 +1,56 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de lancamento de cartao de ponto
+
+zerarSistema
+
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=horista salario=23
+id2=criarEmpregado nome="Mariazinha" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=horista salario=2300
+id3=criarEmpregado nome="Gaiato Vendedor" endereco="Rua dos Bufoes, 333 - Campina Grande" \
+	tipo=comissionado salario=1300 comissao=0,05 
+id4=criarEmpregado nome="Gorete" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=assalariado salario=2300
+
+expect 0 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=31/12/2005
+expect 0 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=31/12/2005
+lancaCartao emp=${id1} data=1/1/2005 horas=8
+lancaCartao emp=${id1} data=2/1/2005 horas=8,5
+lancaCartao emp=${id1} data=3/1/2005 horas=9
+lancaCartao emp=${id1} data=4/1/2005 horas=6
+lancaCartao emp=${id2} data=3/1/2005 horas=10
+# uma data sempre significa 00:00 horas daquele dia
+expect 8 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=02/01/2005
+expect 0 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=2/1/2005
+expect 16 getHorasNormaisTrabalhadas emp=${id1} dataInicial=2/1/2005 dataFinal=4/1/2005
+expect 1,5 getHorasExtrasTrabalhadas emp=${id1} dataInicial=2/1/2005 dataFinal=4/1/2005
+expect 0 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/1/2005
+expect 0 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/1/2005
+expect 0 getHorasNormaisTrabalhadas emp=${id1} dataInicial=5/1/2005 dataFinal=1/2/2005
+expect 0 getHorasExtrasTrabalhadas emp=${id1} dataInicial=5/1/2005 dataFinal=1/2/2005
+
+expect 8 getHorasNormaisTrabalhadas emp=${id2} dataInicial=1/1/2005 dataFinal=31/12/2005
+expect 2 getHorasExtrasTrabalhadas emp=${id2} dataInicial=1/1/2005 dataFinal=31/12/2005
+
+# teste de erros
+expectError "Identificacao do empregado nao pode ser nula." lancaCartao emp="" data=1/1/2005 horas=8
+expectError "Empregado nao existe." lancaCartao emp=abc data=1/1/2005 horas=8
+expectError "Empregado nao eh horista." lancaCartao emp=${id3} data=1/1/2005 horas=8
+expectError "Empregado nao eh horista." lancaCartao emp=${id4} data=1/1/2005 horas=8
+expectError "Data invalida." lancaCartao emp=${id1} data=1/13/2005 horas=8
+expectError "Horas devem ser positivas." lancaCartao emp=${id1} data=1/12/2005 horas=0
+expectError "Horas devem ser positivas." lancaCartao emp=${id1} data=1/12/2005 horas=-1
+
+expectError "Empregado nao eh horista." getHorasNormaisTrabalhadas emp=${id3} dataInicial=1/1/2005 dataFinal=2/1/2005
+expectError "Empregado nao eh horista." getHorasNormaisTrabalhadas emp=${id4} dataInicial=1/1/2005 dataFinal=2/1/2005
+expectError "Data inicial invalida." getHorasNormaisTrabalhadas emp=${id1} dataInicial=41/1/2005 dataFinal=2/1/2005
+expectError "Data final invalida." getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=30/2/2005
+expectError "Data inicial nao pode ser posterior aa data final." getHorasNormaisTrabalhadas emp=${id1} dataInicial=2/1/2005 dataFinal=1/1/2005
+
+encerrarSistema
+quit

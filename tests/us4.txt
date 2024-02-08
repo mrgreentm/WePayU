@@ -1,0 +1,50 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de lancamento de resultado de venda
+
+zerarSistema
+
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=comissionado salario=1300 comissao=0,05 
+id2=criarEmpregado nome="Mariazinha" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=comissionado salario=2300 comissao=0,05 
+id3=criarEmpregado nome="Gaiato Vendedor" endereco="Rua dos Bufoes, 333 - Campina Grande" \
+	tipo=horista salario=13
+id4=criarEmpregado nome="Gorete" endereco="Rua das Marias, 333 - Campina Grande" \
+	tipo=assalariado salario=2300
+
+expect 0,00 getVendasRealizadas emp=${id1} dataInicial=1/1/2005 dataFinal=31/12/2005
+lancaVenda emp=${id1} data=1/1/2005 valor=800
+lancaVenda emp=${id1} data=2/1/2005 valor=850,5
+lancaVenda emp=${id1} data=3/1/2005 valor=900
+lancaVenda emp=${id1} data=4/1/2005 valor=600
+lancaVenda emp=${id2} data=3/1/2005 valor=1000
+# uma data sempre significa 00:00 horas daquele dia
+expect 800,00 getVendasRealizadas emp=${id1} dataInicial=1/1/2005 dataFinal=02/01/2005
+expect 1750,50 getVendasRealizadas emp=${id1} dataInicial=2/1/2005 dataFinal=4/1/2005
+expect 0,00 getVendasRealizadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/1/2005
+expect 0,00 getVendasRealizadas emp=${id1} dataInicial=5/1/2005 dataFinal=1/2/2005
+
+expect 1000,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=31/12/2005
+
+# teste de erros
+expectError "Identificacao do empregado nao pode ser nula." lancaVenda emp="" data=1/1/2005 valor=800
+expectError "Empregado nao existe." lancaVenda emp=abc data=1/1/2005 valor=800
+expectError "Empregado nao eh comissionado." lancaVenda emp=${id3} data=1/1/2005 valor=800
+expectError "Empregado nao eh comissionado." lancaVenda emp=${id4} data=1/1/2005 valor=800
+expectError "Data invalida." lancaVenda emp=${id1} data=1/13/2005 valor=800
+expectError "Valor deve ser positivo." lancaVenda emp=${id1} data=1/12/2005 valor=0
+expectError "Valor deve ser positivo." lancaVenda emp=${id1} data=1/12/2005 valor=-1
+
+expectError "Empregado nao eh comissionado." getVendasRealizadas emp=${id3} dataInicial=1/1/2005 dataFinal=2/1/2005
+expectError "Empregado nao eh comissionado." getVendasRealizadas emp=${id4} dataInicial=1/1/2005 dataFinal=2/1/2005
+expectError "Data inicial invalida." getVendasRealizadas emp=${id1} dataInicial=41/1/2005 dataFinal=2/1/2005
+expectError "Data final invalida." getVendasRealizadas emp=${id1} dataInicial=1/1/2005 dataFinal=30/2/2005
+expectError "Data inicial nao pode ser posterior aa data final." getVendasRealizadas emp=${id1} dataInicial=2/1/2005 dataFinal=1/1/2005
+
+encerrarSistema
+quit

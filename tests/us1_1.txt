@@ -1,0 +1,39 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de adicao de empregado (teste de persistencia)
+
+expectError "Nao ha empregado com esse nome." getEmpregadoPorNome nome="Ze Cachaceiro" indice=1
+
+id1=getEmpregadoPorNome nome="Joao da Silva" indice=1
+# isso significa "a primeira pessoa cujo nome contem "Joao da Silva" (porque pode haver mais pessoas com este string no nome)
+expect "Joao da Silva" getAtributoEmpregado emp=${id1} atributo=nome
+expect "Rua dos Jooes, 333 - Campina Grande" getAtributoEmpregado emp=${id1} atributo=endereco
+expect horista getAtributoEmpregado emp=${id1} atributo=tipo
+expect 23,00 getAtributoEmpregado emp=${id1} atributo=salario
+
+id2=getEmpregadoPorNome nome="Joao da Silva" indice=2
+expectDifferent ${id1} echo ${id2}
+expect "Joao da Silva" getAtributoEmpregado emp=${id2} atributo=nome
+expect "Rua dos Jooes, 333 - Campina Grande" getAtributoEmpregado emp=${id2} atributo=endereco
+expect horista getAtributoEmpregado emp=${id2} atributo=tipo
+expect 23,00 getAtributoEmpregado emp=${id2} atributo=salario
+
+id3=getEmpregadoPorNome nome="Joao da Silva" indice=3
+expect 23,32 getAtributoEmpregado emp=${id3} atributo=salario
+
+id4=getEmpregadoPorNome nome="Mariazinha" indice=1
+expect "Mariazinha" getAtributoEmpregado emp=${id4} atributo=nome
+expect "Rua das Marias, 333 - Campina Grande" getAtributoEmpregado emp=${id4} atributo=endereco
+expect assalariado getAtributoEmpregado emp=${id4} atributo=tipo
+expect 2300,45 getAtributoEmpregado emp=${id4} atributo=salario
+
+id5=getEmpregadoPorNome nome="Gaiato Vendedor" indice=1
+expect "Gaiato Vendedor" getAtributoEmpregado emp=${id5} atributo=nome
+expect "Rua dos Bufoes, 333 - Campina Grande" getAtributoEmpregado emp=${id5} atributo=endereco
+expect comissionado getAtributoEmpregado emp=${id5} atributo=tipo
+expect 2300,45 getAtributoEmpregado emp=${id5} atributo=salario
+expect 0,05 getAtributoEmpregado emp=${id5} atributo=comissao

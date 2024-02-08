@@ -1,0 +1,124 @@
+#####################################################################################
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de alteracao de empregado
+
+zerarSistema
+
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=horista salario=23
+# valores iniciais
+expect "Joao da Silva" getAtributoEmpregado emp=${id1} atributo=nome
+expect "Rua dos Jooes, 333 - Campina Grande" getAtributoEmpregado emp=${id1} atributo=endereco
+expect horista getAtributoEmpregado emp=${id1} atributo=tipo
+expect 23,00 getAtributoEmpregado emp=${id1} atributo=salario
+expectError "Empregado nao eh comissionado." getAtributoEmpregado emp=${id1} atributo=comissao
+expect emMaos getAtributoEmpregado emp=${id1} atributo=metodoPagamento
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=banco
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=agencia
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=contaCorrente
+expect false getAtributoEmpregado emp=${id1} atributo=sindicalizado
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=idSindicato
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=taxaSindical
+
+# serie de alteracoes
+alteraEmpregado emp=${id1} atributo=nome valor="Joaozinho da Silva"
+alteraEmpregado emp=${id1} atributo=endereco valor="Rua dos Jooes, 334 - Campina Grande"
+alteraEmpregado emp=${id1} atributo=tipo valor=assalariado
+alteraEmpregado emp=${id1} atributo=salario valor=1000
+expectError "Empregado nao eh comissionado." alteraEmpregado emp=${id1} atributo=comissao valor=0,05
+alteraEmpregado emp=${id1} atributo=metodoPagamento valor1=banco banco="Banco do Brasil" agencia=1591-1 contaCorrente=51000-0
+alteraEmpregado emp=${id1} atributo=sindicalizado valor=true idSindicato=s123 taxaSindical=30
+
+expect "Joaozinho da Silva" getAtributoEmpregado emp=${id1} atributo=nome
+expect "Rua dos Jooes, 334 - Campina Grande" getAtributoEmpregado emp=${id1} atributo=endereco
+expect assalariado getAtributoEmpregado emp=${id1} atributo=tipo
+expect 1000,00 getAtributoEmpregado emp=${id1} atributo=salario
+expectError "Empregado nao eh comissionado." getAtributoEmpregado emp=${id1} atributo=comissao
+expect banco getAtributoEmpregado emp=${id1} atributo=metodoPagamento
+expect "Banco do Brasil" getAtributoEmpregado emp=${id1} atributo=banco
+expect 1591-1 getAtributoEmpregado emp=${id1} atributo=agencia
+expect 51000-0 getAtributoEmpregado emp=${id1} atributo=contaCorrente
+expect true getAtributoEmpregado emp=${id1} atributo=sindicalizado
+expect s123 getAtributoEmpregado emp=${id1} atributo=idSindicato
+expect 30,00 getAtributoEmpregado emp=${id1} atributo=taxaSindical
+
+# serie de alteracoes
+alteraEmpregado emp=${id1} atributo=tipo valor=comissionado comissao=0,02
+alteraEmpregado emp=${id1} atributo=salario valor=500
+
+expect comissionado getAtributoEmpregado emp=${id1} atributo=tipo
+expect 500,00 getAtributoEmpregado emp=${id1} atributo=salario
+expect 0,02 getAtributoEmpregado emp=${id1} atributo=comissao
+
+# serie de alteracoes
+alteraEmpregado emp=${id1} atributo=comissao valor=0,03
+
+expect comissionado getAtributoEmpregado emp=${id1} atributo=tipo
+expect 500,00 getAtributoEmpregado emp=${id1} atributo=salario
+expect 0,03 getAtributoEmpregado emp=${id1} atributo=comissao
+
+# serie de alteracoes
+alteraEmpregado emp=${id1} atributo=metodoPagamento valor1=correios
+
+expect correios getAtributoEmpregado emp=${id1} atributo=metodoPagamento
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=banco
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=agencia
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=contaCorrente
+
+# serie de alteracoes
+alteraEmpregado emp=${id1} atributo=sindicalizado valor=false
+
+expect false getAtributoEmpregado emp=${id1} atributo=sindicalizado
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=idSindicato
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=taxaSindical
+
+# serie de alteracoes
+alteraEmpregado emp=${id1} atributo=nome valor="Joao da Silva"
+alteraEmpregado emp=${id1} atributo=endereco valor="Rua dos Jooes, 333 - Campina Grande"
+alteraEmpregado emp=${id1} atributo=tipo valor=horista salario=23
+alteraEmpregado emp=${id1} atributo=metodoPagamento valor=emMaos
+alteraEmpregado emp=${id1} atributo=sindicalizado valor=false
+
+expect "Joao da Silva" getAtributoEmpregado emp=${id1} atributo=nome
+expect "Rua dos Jooes, 333 - Campina Grande" getAtributoEmpregado emp=${id1} atributo=endereco
+expect horista getAtributoEmpregado emp=${id1} atributo=tipo
+expect 23,00 getAtributoEmpregado emp=${id1} atributo=salario
+expectError "Empregado nao eh comissionado." getAtributoEmpregado emp=${id1} atributo=comissao
+expect emMaos getAtributoEmpregado emp=${id1} atributo=metodoPagamento
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=banco
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=agencia
+expectError "Empregado nao recebe em banco." getAtributoEmpregado emp=${id1} atributo=contaCorrente
+expect false getAtributoEmpregado emp=${id1} atributo=sindicalizado
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=idSindicato
+expectError "Empregado nao eh sindicalizado." getAtributoEmpregado emp=${id1} atributo=taxaSindical
+
+# erros
+expectError "Identificacao do empregado nao pode ser nula." alteraEmpregado emp="" atributo=sindicalizado valor=true
+expectError "Empregado nao existe." alteraEmpregado emp=abc atributo=nome valor=joao
+expectError "Atributo nao existe." alteraEmpregado emp=${id1} atributo=abc valor=111
+expectError "Nome nao pode ser nulo." alteraEmpregado emp=${id1} atributo=nome valor=""
+expectError "Endereco nao pode ser nulo." alteraEmpregado emp=${id1} atributo=endereco valor=""
+expectError "Tipo invalido." alteraEmpregado emp=${id1} atributo=tipo valor=abc
+expectError "Salario nao pode ser nulo." alteraEmpregado emp=${id1} atributo=salario valor=""
+expectError "Salario deve ser numerico." alteraEmpregado emp=${id1} atributo=salario valor=a
+expectError "Salario deve ser nao-negativo." alteraEmpregado emp=${id1} atributo=salario valor=-1
+alteraEmpregado emp=${id1} atributo=tipo valor=comissionado comissao=0,02
+expectError "Comissao nao pode ser nula." alteraEmpregado emp=${id1} atributo=comissao valor=""
+expectError "Comissao deve ser numerica." alteraEmpregado emp=${id1} atributo=comissao valor=a
+expectError "Comissao deve ser nao-negativa." alteraEmpregado emp=${id1} atributo=comissao valor=-1
+expectError "Metodo de pagamento invalido." alteraEmpregado emp=${id1} atributo=metodoPagamento valor=abc
+expectError "Banco nao pode ser nulo." alteraEmpregado emp=${id1} atributo=metodoPagamento valor1=banco banco="" agencia=1591-1 contaCorrente=51000-0
+expectError "Agencia nao pode ser nulo." alteraEmpregado emp=${id1} atributo=metodoPagamento valor1=banco banco="Banco do Brasil" agencia="" contaCorrente=51000-0
+expectError "Conta corrente nao pode ser nulo." alteraEmpregado emp=${id1} atributo=metodoPagamento valor1=banco banco="Banco do Brasil" agencia=1591-1 contaCorrente=""
+expectError "Valor deve ser true ou false." alteraEmpregado emp=${id1} atributo=sindicalizado valor=abc
+expectError "Identificacao do sindicato nao pode ser nula." alteraEmpregado emp=${id1} atributo=sindicalizado valor=true idSindicato="" taxaSindical=30
+expectError "Taxa sindical nao pode ser nula." alteraEmpregado emp=${id1} atributo=sindicalizado valor=true idSindicato=s123 taxaSindical=""
+expectError "Taxa sindical deve ser numerica." alteraEmpregado emp=${id1} atributo=sindicalizado valor=true idSindicato=s123 taxaSindical=a
+expectError "Taxa sindical deve ser nao-negativa." alteraEmpregado emp=${id1} atributo=sindicalizado valor=true idSindicato=s123 taxaSindical=-1
+
+encerrarSistema
+quit

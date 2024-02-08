@@ -1,0 +1,130 @@
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User Story de undo/redo
+
+zerarSistema
+
+id0=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" tipo=horista salario=23
+id2=criarEmpregado nome="Gaiato Vendedor" endereco="Rua dos Bufoes, 333 - Campina Grande" tipo=comissionado salario=2300 comissao=0,05
+removerEmpregado emp=${id0}
+id1=criarEmpregado nome="Joaozinho da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" tipo=horista salario=23
+alteraEmpregado emp=${id2} atributo=metodoPagamento valor1=correios
+alteraEmpregado emp=${id2} atributo=sindicalizado valor=true idSindicato=s123 taxaSindical=30
+alteraEmpregado emp=${id2} atributo=metodoPagamento valor1=banco banco="Banco do Brasil" agencia=1591-1 contaCorrente=51000-0
+getAtributoEmpregado emp=${id2} atributo=banco
+getEmpregadoPorNome nome="Joaozinho da Silva" indice=1
+getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+totalFolha data=7/1/2005
+lancaCartao emp=${id1} data=1/1/2005 horas=8
+lancaCartao emp=${id1} data=2/1/2005 horas=10
+lancaTaxaServico membro=s123 data=1/1/2005 valor=80
+lancaVenda emp=${id2} data=1/1/2005 valor=800
+rodaFolha data=11/2/2005 saida=folha-2005-02-11.txt
+zerarSistema
+
+# TESTES DE UNDO
+expect 0 getNumeroDeEmpregados
+# undo de zerarSistema
+undo
+expect 2 getNumeroDeEmpregados
+expect 800,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 80,00 getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 16 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 2 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+# undo de rodaFolha
+undo
+expect 2 getNumeroDeEmpregados
+expect 800,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 80,00 getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 16 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 2 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+# undo de lancaVenda
+undo
+expect 2 getNumeroDeEmpregados
+expect 0,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 80,00 getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 16 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 2 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+# undo de lancaTaxaServico
+undo
+expect 2 getNumeroDeEmpregados
+expect 0,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 0,00 getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 16 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 2 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+# undo de lancaCartao
+undo
+expect 2 getNumeroDeEmpregados
+expect 0,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 0,00 getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 8 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 0 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+# undo de lancaCartao
+undo
+expect 2 getNumeroDeEmpregados
+expect 0,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 0,00 getTaxasServico emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 0 getHorasNormaisTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+expect 0 getHorasExtrasTrabalhadas emp=${id1} dataInicial=1/1/2005 dataFinal=1/12/2005
+# nao existe undo de metodos "get" como totalFolha, getAtributoEmpregado, ...
+# ... getEmpregadoPorNome, getHorasExtrasTrabalhadas, getHorasNormaisTrabalhadas, getTaxasServico, ...
+# ... getVendasRealizadas
+# undo de alteraEmpregado
+expect banco getAtributoEmpregado emp=${id2} atributo=metodoPagamento
+undo
+expect correios getAtributoEmpregado emp=${id2} atributo=metodoPagamento
+# undo de alteraEmpregado
+expect true getAtributoEmpregado emp=${id2} atributo=sindicalizado
+undo
+expect false getAtributoEmpregado emp=${id2} atributo=sindicalizado
+# undo de alteraEmpregado
+expect correios getAtributoEmpregado emp=${id2} atributo=metodoPagamento
+undo
+expect emMaos getAtributoEmpregado emp=${id2} atributo=metodoPagamento
+# undo de criarEmpregado
+expect "Joaozinho da Silva" getAtributoEmpregado emp=${id1} atributo=nome
+undo
+expectError "Empregado nao existe." getAtributoEmpregado emp=${id1} atributo=nome
+# undo removerEmpregado
+undo
+expect "Joao da Silva" getAtributoEmpregado emp=${id0} atributo=nome
+# undo de criarEmpregado
+expect "Gaiato Vendedor" getAtributoEmpregado emp=${id2} atributo=nome
+undo
+expectError "Empregado nao existe." getAtributoEmpregado emp=${id2} atributo=nome
+# undo de criarEmpregado
+expect "Joao da Silva" getAtributoEmpregado emp=${id0} atributo=nome
+undo
+expectError "Empregado nao existe." getAtributoEmpregado emp=${id0} atributo=nome
+expect 0 getNumeroDeEmpregados
+# undo de zerarSistema
+undo
+# undo de comando que nao existe
+expectError "Nao ha comando a desfazer." undo
+
+# TESTES DE REDO
+redo
+redo
+redo
+expect 2 getNumeroDeEmpregados
+redo
+expect 1 getNumeroDeEmpregados
+# expectError "Nao ha comando a refazer." redo
+
+# teste de undo quando o comando da erro (na entra na lista de comandos
+expect 0,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+lancaVenda emp=${id2} data=2/2/2005 valor=600
+expect 600,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+expectError "Data invalida." lancaVenda emp=${id2} data=32/2/2005 valor=100
+expect 600,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+undo
+expect 0,00 getVendasRealizadas emp=${id2} dataInicial=1/1/2005 dataFinal=1/12/2005
+
+encerrarSistema
+expectError "Nao pode dar comandos depois de encerrarSistema." undo

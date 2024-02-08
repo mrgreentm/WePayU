@@ -1,0 +1,120 @@
+# Se alguem descobrir erros nesse script, favor avisar a Jacques
+# Assim, poderei compartilhar testes corretos com todos.
+# (escrevi os testes mas nao os executei ...)
+#####################################################################################
+
+# User story 10 - Agendas de Pagamentos Customizadas
+
+zerarSistema
+
+# erros na criacao de uma nova agenda de pagamentos
+# semanal tem que ser seguido de 1 a 7 (dia da semana) ou, se houver dois parametros, o primeiro tem que ser de 1 a 52
+# (de quantas em quantas semanas), e o segundo de 1 a 7 (dia da semana); mensal tem que se seguir de 1 a 28 (dia do mes), 
+# ou '$' caso se deseje o ultimo dia do mes
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="semanal 0"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="semanal 8"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="semanal 2 0"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="semanal 2 8"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="semanal 53 1"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="mensal 0"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="mensal 29"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="mensal 30"
+expecterror "Descricao de agenda invalida" criarAgendaDePagamentos descricao="diario"
+expecterror "Agenda de pagamentos ja existe" criarAgendaDePagamentos descricao="mensal $"
+expecterror "Agenda de pagamentos ja existe" criarAgendaDePagamentos descricao="semanal 5"
+expecterror "Agenda de pagamentos ja existe" criarAgendaDePagamentos descricao="semanal 2 5"
+
+# erros de atribuicao de novas agendas de pagamentos
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=horista salario=23
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="mensal 1"
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="semanal 2"
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="semanal 2 1"
+criarAgendaDePagamentos descricao="mensal 1"
+expecterror "Agenda de pagamentos ja existe" criarAgendaDePagamentos descricao="mensal 1"
+criarAgendaDePagamentos descricao="semanal 2"
+expecterror "Agenda de pagamentos ja existe" criarAgendaDePagamentos descricao="semanal 2"
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="mensal 1"
+expect "mensal 1" getAtributoEmpregado emp=${id1} atributo=agendaPagamento
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="semanal 2"
+expect "semanal 2" getAtributoEmpregado emp=${id1} atributo=agendaPagamento
+expecterror "Agenda de pagamento nao esta disponivel" alteraEmpregado emp=${id1} \
+	atributo=agendaPagamento valor1="semanal 2 1"
+
+# testes de novas agendas de pagamentos
+# Obs: testes so com assalariados, por enquanto (mas se preparem para os testes de aceitacao secretos, hehehe)
+# primeiro caso: mensal 1 (dia 1 de cada mes)
+zerarSistema
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" tipo=assalariado salario=2800
+criarAgendaDePagamentos descricao="mensal 1"
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="mensal 1"
+expect 2800,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=7/1/2005
+expect 0,00 totalFolha data=14/1/2005
+expect 0,00 totalFolha data=21/1/2005
+expect 0,00 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+expect 2800,00 totalFolha data=1/2/2005
+expect 2800,00 totalFolha data=1/3/2005
+
+# segundo caso: semanal 2 (toda semana, as tercas)
+zerarSistema
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" tipo=assalariado salario=2800
+criarAgendaDePagamentos descricao="semanal 2"
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="semanal 2"
+expect 0,00 totalFolha data=1/1/2005
+expect 646,15 totalFolha data=4/1/2005
+expect 646,15 totalFolha data=11/1/2005
+expect 646,15 totalFolha data=18/1/2005
+expect 646,15 totalFolha data=25/1/2005
+expect 0,00 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+expect 646,15 totalFolha data=1/2/2005
+
+# terceiro caso: semanal 3 3 (a cada tres semanas, as quartas)
+zerarSistema
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" tipo=assalariado salario=2800
+criarAgendaDePagamentos descricao="semanal 3 3"
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="semanal 3 3"
+expect 0,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=7/1/2005
+expect 0,00 totalFolha data=14/1/2005
+expect 1938,46 totalFolha data=19/1/2005
+expect 0,00 totalFolha data=21/1/2005
+expect 0,00 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+expect 0,00 totalFolha data=1/2/2005
+expect 1938,46 totalFolha data=9/2/2005
+expect 1938,46 totalFolha data=25/5/2005
+
+# terceiro caso: semanal 52 1 (a cada 52 semanas, as segundas)
+zerarSistema
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" tipo=assalariado salario=2800
+criarAgendaDePagamentos descricao="semanal 52 1"
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="semanal 52 1"
+expect 0,00 totalFolha data=1/1/2005
+expect 0,00 totalFolha data=7/1/2005
+expect 0,00 totalFolha data=14/1/2005
+expect 0,00 totalFolha data=19/1/2005
+expect 0,00 totalFolha data=21/1/2005
+expect 0,00 totalFolha data=28/1/2005
+expect 0,00 totalFolha data=31/1/2005
+expect 0,00 totalFolha data=1/2/2005
+expect 0,00 totalFolha data=1/3/2005
+expect 0,00 totalFolha data=1/4/2005
+expect 0,00 totalFolha data=1/5/2005
+expect 33600,00 totalFolha data=26/12/2005
+
+# preparacao do teste de persistencia
+zerarSistema
+id1=criarEmpregado nome="Joao da Silva" endereco="Rua dos Jooes, 333 - Campina Grande" \
+	tipo=horista salario=23
+criarAgendaDePagamentos descricao="mensal 1"
+criarAgendaDePagamentos descricao="semanal 2"
+alteraEmpregado emp=${id1} atributo=agendaPagamento valor1="mensal 1"
+
+encerrarSistema
+quit
