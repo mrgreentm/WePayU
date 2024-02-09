@@ -72,7 +72,7 @@ public class SistemaEmpregados {
             empregadoComissionado.setSalarioMensal(Utils.converterStringParaDouble(valor));
             return empregadoComissionado;
         }
-        throw new Exception("");
+        throw new Exception("Empregado invalido");
     }
 
     public Empregado alteraSindicalizado(Empregado empregado, String valor) throws Exception {
@@ -223,27 +223,5 @@ public class SistemaEmpregados {
         EmpregadoComissionado emp = Utils.converteEmpregadoParaComissionado(empregado);
         double salarioDouble = Utils.converterStringParaDouble(dinheiros);
         return Utils.converterComissionadoParaEmpregadoHorista(salarioDouble, emp);
-    }
-
-    private void realizarAlteracao(Empregado empregadoAntigo, Empregado empregadoNovo) {
-        empregadosRepository.removeEmpregado(empregadoAntigo);
-        adicionaEmpregadoABase(empregadoNovo);
-    }
-    public void adicionaEmpregadoABase(Empregado empregado) {
-        if (!empregadosRepository.getAllEmpregados().contains(empregado)) {
-            if (empregado instanceof EmpregadoHorista) {
-                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaHorista(empregado));
-                return;
-            }
-            if (empregado instanceof EmpregadoAssalariado) {
-                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaAssalariado(empregado));
-                return;
-            }
-            if (empregado instanceof EmpregadoComissionado) {
-                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaComissionado(empregado));
-                return;
-            }
-            empregadosRepository.addEmpregado(empregado);
-        }
     }
 }
