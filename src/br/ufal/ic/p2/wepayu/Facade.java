@@ -1,6 +1,5 @@
 package br.ufal.ic.p2.wepayu;
 
-import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
 import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
 import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoAssalariado;
 import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoComissionado;
@@ -21,22 +20,20 @@ public class Facade {
     private final SistemaVendas sistemaVendas = new SistemaVendas();
     private final SistemaEmpregados sistemaEmpregados = new SistemaEmpregados();
     private final SistemaTaxaSindical sistemaTaxaSindical = new SistemaTaxaSindical();
-    List<Empregado> empregados = empregadosRepository.getAllEmpregados();
     public List<String> listaIdMembros = new ArrayList<>();
 
     public void zerarSistema() {
-        empregados = empregadosRepository.zeraRepository();
-        sistemaEmpregados.zerarSistema();
+        empregadosRepository.zeraRepository();
     }
 
     public void encerrarSistema() {
-        Utils.salvarEmXML(empregados, "./listaEmpregados.xml");
+        Utils.salvarEmXML(empregadosRepository.getAllEmpregados(), "./listaEmpregados.xml");
         listaIdMembros = new ArrayList<>();
     }
 
     public void removerEmpregado(String idEmpregado) throws Exception {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
-        empregados.remove(empregado);
+        empregadosRepository.removeEmpregado(empregado);
     }
 
     public String getAtributoEmpregado(String emp, String atributo) throws Exception {
@@ -57,7 +54,7 @@ public class Facade {
     }
 
     public String getEmpregadoPorNome(String nome, int index) throws Exception {
-        return sistemaEmpregados.getEmpregadoPorNome(nome, index, empregados);
+        return sistemaEmpregados.getEmpregadoPorNome(nome, index, empregadosRepository.getAllEmpregados());
     }
 
     public String getHorasNormaisTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
@@ -92,15 +89,7 @@ public class Facade {
     public void alteraEmpregado(String idEmpregado, String atributo, String valor) throws Exception {
         sistemaEmpregados.validarAtributosEmpregados(atributo);
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
-        switch (atributo) {
-            case "sindicalizado" -> substituiEmpregado(sistemaEmpregados.alteraSindicalizado(empregado, valor));
-            case "nome" -> empregado.setNome(valor);
-            case "endereco" -> empregado.setEndereco(valor);
-            case "tipo" -> substituiEmpregado(sistemaEmpregados.alteraTipo(empregado, valor));
-            case "metodoPagamento" -> substituiEmpregado(sistemaEmpregados.alteraMetodoPagamento(empregado, valor));
-            case "salario" -> substituiEmpregado(sistemaEmpregados.alteraSalario(empregado, valor));
-            case "comissao" -> substituiEmpregado(sistemaEmpregados.alteraComissao(empregado, valor));
-        }
+        substituiEmpregado(sistemaEmpregados.alteraEmpregado(empregado,atributo, valor));
     }
 
     public void alteraEmpregado(String idEmpregado, String atributo, Boolean valor, String idSindicato, String taxaSindical) throws Exception {
@@ -110,13 +99,7 @@ public class Facade {
 
     public void alteraEmpregado(String idEmpregado, String atributo, String valor, String dinheiros) throws Exception {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
-        if ("tipo".equals(atributo)) {
-            if (TipoEmpregado.COMISSIONADO().equals(valor)) {
-                converteParaComissionado(empregado, dinheiros);
-            } else if (TipoEmpregado.HORISTA().equals(valor)) {
-                converteParaHorista(empregado, dinheiros);
-            }
-        }
+        substituiEmpregado(sistemaEmpregados.alteraEmpregado(empregado, atributo, valor,dinheiros));
     }
 
     public void alteraEmpregado(String idEmpregado, String atributo, String valor, String banco, String agencia, String contaCorrente) throws Exception {
@@ -137,53 +120,25 @@ public class Facade {
     }
 
     private void adicionaEmpregadoABase(Empregado empregado) {
-        if (!empregados.contains(empregado)) {
+        if (!empregadosRepository.getAllEmpregados().contains(empregado)) {
             if (empregado instanceof EmpregadoHorista) {
-                empregados = empregadosRepository.addEmpregado(Utils.converteEmpregadoParaHorista(empregado));
+                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaHorista(empregado));
                 return;
             }
             if (empregado instanceof EmpregadoAssalariado) {
-                empregados = empregadosRepository.addEmpregado(Utils.converteEmpregadoParaAssalariado(empregado));
+                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaAssalariado(empregado));
                 return;
             }
             if (empregado instanceof EmpregadoComissionado) {
-                empregados = empregadosRepository.addEmpregado(Utils.converteEmpregadoParaComissionado(empregado));
+                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaComissionado(empregado));
                 return;
             }
-            empregados = empregadosRepository.addEmpregado(empregado);
+            empregadosRepository.addEmpregado(empregado);
         }
-    }
-
-    private void converteParaComissionado(Empregado empregado, String dinheiros) throws Exception {
-        double comissaoDouble = Utils.converterStringParaDouble(dinheiros);
-        if (empregado instanceof EmpregadoHorista) {
-            EmpregadoComissionado empregadoComissionado = Utils.converterHoristaParaEmpregadoComissionado(comissaoDouble, (EmpregadoHorista) empregado);
-            realizarAlteracao(empregado, empregadoComissionado);
-        } else if (empregado instanceof EmpregadoAssalariado) {
-            EmpregadoComissionado empregadoComissionado = Utils.converterAssalariadoParaEmpregadoComissionado(comissaoDouble, (EmpregadoAssalariado) empregado);
-            realizarAlteracao(empregado, empregadoComissionado);
-        }
-    }
-
-    private void converteParaHorista(Empregado empregado, String dinheiros) throws Exception {
-        EmpregadoComissionado emp = Utils.converteEmpregadoParaComissionado(empregado);
-        double salarioDouble = Utils.converterStringParaDouble(dinheiros);
-        EmpregadoHorista empregadoHorista = Utils.converterComissionadoParaEmpregadoHorista(salarioDouble, emp);
-        realizarAlteracao(empregado, empregadoHorista);
-    }
-
-    private void realizarAlteracao(Empregado empregadoAntigo, Empregado empregadoNovo) {
-        empregados.remove(empregadoAntigo);
-        adicionaEmpregadoABase(empregadoNovo);
-    }
-
-    private void substituiEmpregado(EmpregadoComissionado empregadoComissionado) {
-        empregados.remove(empregadoComissionado);
-        empregados.add(empregadoComissionado);
     }
 
     private void substituiEmpregado(Empregado empregado) {
-        empregados.remove(empregado);
-        empregados.add(empregado);
+        empregadosRepository.removeEmpregado(empregado);
+        empregadosRepository.addEmpregado(empregado);
     }
 }

@@ -39,6 +39,9 @@ public class EmpregadosRepository {
         Utils.salvarEmXML(empregados, "./listaEmpregados.xml");
         return empregados;
     }
+    public void removeEmpregado(Empregado empregado) {
+        empregados.remove(empregado);
+    }
     public void addDadoEmpregadoSistemaFolha(String idEmpregado, String data, String horas) throws Exception {
         var cartao = new CartaoPontoSistemaFolha(idEmpregado, data, horas);
         dadosEmpregadoSistemaFolhas.adicionaCartao(cartao);

@@ -7,6 +7,7 @@ import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.TaxaSindicalNegativaExce
 import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
 import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoAssalariado;
 import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoComissionado;
+import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoHorista;
 import br.ufal.ic.p2.wepayu.models.metodopagamento.Banco;
 import br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
@@ -14,23 +15,10 @@ import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.utils.Mensagens;
 import br.ufal.ic.p2.wepayu.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SistemaEmpregados {
-    public List<String> listaIdMembros = new ArrayList<>();
-
     private final EmpregadosRepository empregadosRepository = new EmpregadosRepository();
-    private List<Empregado> empregadosList = empregadosRepository.getAllEmpregados();
-
-    public void encerrarSistema() {
-        Utils.salvarEmXML(empregadosList, "./listaEmpregados.xml");
-        listaIdMembros = new ArrayList<>();
-    }
-
-    public void zerarSistema() {
-        empregadosList = empregadosRepository.zeraRepository();
-    }
 
     public String getAtributoEmpregado(Empregado empregado, String atributo) throws Exception {
         return switch (empregado.getClass().getSimpleName()) {
@@ -135,8 +123,46 @@ public class SistemaEmpregados {
         if ("metodoPagamento".equals(atributo)) alteraMetodoPagamento(empregado, valor, banco, agencia, contaCorrente);
         return empregado;
     }
+    public Empregado alteraEmpregado(Empregado empregado, String atributo, String valor, String dinheiros) throws Exception {
+        if ("tipo".equals(atributo)) {
+            if (TipoEmpregado.COMISSIONADO().equals(valor)) {
+                empregado = converteParaComissionado(empregado, dinheiros);
+            } else if (TipoEmpregado.HORISTA().equals(valor)) {
+                empregado = converteParaHorista(empregado, dinheiros);
+            }
+        }
+        return empregado;
+    }
+    public Empregado alteraEmpregado(Empregado empregado, String atributo, String valor) throws Exception {
+        switch (atributo) {
+            case "sindicalizado" -> {
+                return alteraSindicalizado(empregado, valor);
+            }
+            case "nome" -> {
+                empregado.setNome(valor);
+                return empregado;
+            }
+            case "endereco" -> {
+                empregado.setEndereco(valor);
+                return empregado;
+            }
+            case "tipo" -> {
+                return alteraTipo(empregado, valor);
+            }
+            case "metodoPagamento" -> {
+                return alteraMetodoPagamento(empregado, valor);
+            }
+            case "salario" -> {
+                return alteraSalario(empregado, valor);
+            }
+            case "comissao" -> {
+                return alteraComissao(empregado, valor);
+            }
+        }
+        return null;
+    }
 
-    public Empregado alteraMetodoPagamento(Empregado empregado, String valor, String banco, String agencia, String contaCorrente) throws Exception {
+    public void alteraMetodoPagamento(Empregado empregado, String valor, String banco, String agencia, String contaCorrente) throws Exception {
         if (!empregadosRepository.metodosPagamento.contains(valor)) {
             throw new MetodoPagamentoInvalidoException(Mensagens.metodoPagamentoInvalido);
         }
@@ -153,7 +179,6 @@ public class SistemaEmpregados {
             metodoPagamento.setRecebePorBanco(true);
             empregado.setMetodoPagamento(metodoPagamento);
         }
-        return empregado;
     }
 
     private void validarInformacoesBanco(String banco, String agencia, String contaCorrente) throws Exception {
@@ -182,5 +207,43 @@ public class SistemaEmpregados {
     public void validarAtributosEmpregados(String atributo) throws AtributoInexistenteException {
         if (!empregadosRepository.atributosEmpregados.contains(atributo))
             throw new AtributoInexistenteException(Mensagens.atributoInexistente);
+    }
+
+    private Empregado converteParaComissionado(Empregado empregado, String dinheiros) throws Exception {
+        double comissaoDouble = Utils.converterStringParaDouble(dinheiros);
+        if (empregado instanceof EmpregadoHorista) {
+            return Utils.converterHoristaParaEmpregadoComissionado(comissaoDouble, (EmpregadoHorista) empregado);
+        } else if (empregado instanceof EmpregadoAssalariado) {
+            return Utils.converterAssalariadoParaEmpregadoComissionado(comissaoDouble, (EmpregadoAssalariado) empregado);
+        }
+        return null;
+    }
+
+    private EmpregadoHorista converteParaHorista(Empregado empregado, String dinheiros) throws Exception {
+        EmpregadoComissionado emp = Utils.converteEmpregadoParaComissionado(empregado);
+        double salarioDouble = Utils.converterStringParaDouble(dinheiros);
+        return Utils.converterComissionadoParaEmpregadoHorista(salarioDouble, emp);
+    }
+
+    private void realizarAlteracao(Empregado empregadoAntigo, Empregado empregadoNovo) {
+        empregadosRepository.removeEmpregado(empregadoAntigo);
+        adicionaEmpregadoABase(empregadoNovo);
+    }
+    public void adicionaEmpregadoABase(Empregado empregado) {
+        if (!empregadosRepository.getAllEmpregados().contains(empregado)) {
+            if (empregado instanceof EmpregadoHorista) {
+                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaHorista(empregado));
+                return;
+            }
+            if (empregado instanceof EmpregadoAssalariado) {
+                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaAssalariado(empregado));
+                return;
+            }
+            if (empregado instanceof EmpregadoComissionado) {
+                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaComissionado(empregado));
+                return;
+            }
+            empregadosRepository.addEmpregado(empregado);
+        }
     }
 }
