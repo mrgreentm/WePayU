@@ -1,9 +1,6 @@
 package br.ufal.ic.p2.wepayu;
 
 import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
-import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoAssalariado;
-import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoComissionado;
-import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoHorista;;
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
 import br.ufal.ic.p2.wepayu.services.sistemaempregados.SistemaEmpregados;
 import br.ufal.ic.p2.wepayu.services.sistemafolha.SistemaFolha;
@@ -43,13 +40,13 @@ public class Facade {
 
     public String criarEmpregado(String nome, String endereco, String tipo, String salario) throws Exception {
         var empregado = sistemaEmpregados.criarEmpregado(nome, endereco, tipo, salario);
-        adicionaEmpregadoABase(empregado);
+        empregadosRepository.addEmpregado(empregado);
         return empregado.getId();
     }
 
     public String criarEmpregado(String nome, String endereco, String tipo, String salario, String comissao) throws Exception {
         var empregado = sistemaEmpregados.criarEmpregado(nome, endereco, tipo, salario, comissao);
-        adicionaEmpregadoABase(empregado);
+        empregadosRepository.addEmpregado(empregado);
         return empregado.getId();
     }
 
@@ -117,24 +114,6 @@ public class Facade {
     public void lancaTaxaServico(String idMembro, String data, String valor) throws Exception {
         sistemaTaxaSindical.validarIdMembro(idMembro, listaIdMembros);
         sistemaTaxaSindical.lancaTaxaServico(idMembro, data, valor);
-    }
-
-    private void adicionaEmpregadoABase(Empregado empregado) {
-        if (!empregadosRepository.getAllEmpregados().contains(empregado)) {
-            if (empregado instanceof EmpregadoHorista) {
-                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaHorista(empregado));
-                return;
-            }
-            if (empregado instanceof EmpregadoAssalariado) {
-                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaAssalariado(empregado));
-                return;
-            }
-            if (empregado instanceof EmpregadoComissionado) {
-                empregadosRepository.addEmpregado(Utils.converteEmpregadoParaComissionado(empregado));
-                return;
-            }
-            empregadosRepository.addEmpregado(empregado);
-        }
     }
 
     private void substituiEmpregado(Empregado empregado) {
