@@ -50,7 +50,7 @@ public class SistemaEmpregados {
         return new EmpregadoComissionado(nome, endereco, tipo, metodoPagamento, salarioConvertidoParaDouble, constroiMembroSindicato(false), comissaoConvertidaParaDouble);
     }
 
-    public String getEmpregadoPorNome(String nome, int index, List<Empregado> empregados) throws Exception {
+    public String getEmpregadoPorNome(String nome, int index, List<Empregado> empregados) throws EmpregadoNaoEncontradoPeloNomeException {
         var indexLista = index - 1;
         List<Empregado> listaDeEmpregados = empregados.stream().filter(empregado -> empregado.getNome().equals(nome)).toList();
         if (listaDeEmpregados.isEmpty())

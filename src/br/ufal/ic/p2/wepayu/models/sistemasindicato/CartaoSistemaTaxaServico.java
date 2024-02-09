@@ -3,6 +3,9 @@ package br.ufal.ic.p2.wepayu.models.sistemasindicato;
 import java.io.Serializable;
 
 public class CartaoSistemaTaxaServico implements Serializable {
+    private String idMembro;
+    private String valor;
+    private String data;
     public CartaoSistemaTaxaServico(){}
     public CartaoSistemaTaxaServico(String idMembro, String valor, String data){
         setIdMembro(idMembro);
@@ -33,8 +36,5 @@ public class CartaoSistemaTaxaServico implements Serializable {
         this.data = data;
     }
 
-    private String idMembro;
-    private String valor;
-    private String data;
 
 }
