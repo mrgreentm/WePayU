@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="20.0.2.1" class="java.beans.XMLDecoder">
+ <object class="br.ufal.ic.p2.wepayu.models.empregado.EmpregadoComissionado">
+  <void property="comissao">
+   <double>0.02</double>
+  </void>
+  <void property="endereco">
+   <string>Rua dos Jooes, 333 - Campina Grande</string>
+  </void>
+  <void property="id">
+   <string>5a5e898b-6f6e-4776-b36a-22e19e6d173c</string>
+  </void>
+  <void property="membroSindicato">
+   <object class="br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato">
+    <void property="sindicalizado">
+     <boolean>false</boolean>
+    </void>
+    <void property="taxaSindical">
+     <double>1.0</double>
+    </void>
+   </object>
+  </void>
+  <void property="metodoPagamento">
+   <object class="br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento">
+    <void property="banco">
+     <object class="br.ufal.ic.p2.wepayu.models.metodopagamento.Banco">
+      <void property="agencia">
+       <string>1591-1</string>
+      </void>
+      <void property="banco">
+       <string>Banco do Brasil</string>
+      </void>
+      <void property="contaCorrente">
+       <string>51000-0</string>
+      </void>
+     </object>
+    </void>
+    <void property="correios">
+     <boolean>false</boolean>
+    </void>
+    <void property="emMaos">
+     <boolean>true</boolean>
+    </void>
+   </object>
+  </void>
+  <void property="nome">
+   <string>Joao da Silva</string>
+  </void>
+  <void property="salarioMensal">
+   <double>23.0</double>
+  </void>
+  <void property="tipo">
+   <string>comissionado</string>
+  </void>
+ </object>
+</java>
