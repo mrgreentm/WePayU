@@ -20,6 +20,14 @@ import java.util.List;
 public class SistemaEmpregados {
     private final EmpregadosRepository empregadosRepository = new EmpregadosRepository();
 
+    /**
+     * Obtém o valor de um atributo específico de um empregado.
+     *
+     * @param empregado Empregado para o qual se deseja obter o atributo.
+     * @param atributo  Atributo desejado.
+     * @return Valor do atributo.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public String getAtributoEmpregado(Empregado empregado, String atributo) throws Exception {
         return switch (empregado.getClass().getSimpleName()) {
             case "EmpregadoAssalariado" ->
@@ -32,6 +40,16 @@ public class SistemaEmpregados {
         };
     }
 
+    /**
+     * Cria um empregado assalariado.
+     *
+     * @param nome    Nome do empregado.
+     * @param endereco Endereço do empregado.
+     * @param tipo    Tipo do empregado.
+     * @param salario Salário do empregado.
+     * @return Empregado assalariado criado.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado criarEmpregado(String nome, String endereco, String tipo, String salario) throws Exception {
         if (tipo.equals(TipoEmpregado.COMISSIONADO())) throw new Exception("Tipo nao aplicavel.");
         var salarioConvertidoParaDouble = Utils.converterStringParaDouble("Salario", salario);
@@ -39,7 +57,17 @@ public class SistemaEmpregados {
         metodoPagamento.setEmMaos(true);
         return new EmpregadoAssalariado(nome, endereco, tipo, metodoPagamento, salarioConvertidoParaDouble, constroiMembroSindicato(false));
     }
-
+    /**
+     * Cria um empregado comissionado.
+     *
+     * @param nome     Nome do empregado.
+     * @param endereco Endereço do empregado.
+     * @param tipo     Tipo do empregado.
+     * @param salario  Salário do empregado.
+     * @param comissao Comissão do empregado.
+     * @return Empregado comissionado criado.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado criarEmpregado(String nome, String endereco, String tipo, String salario, String comissao) throws Exception {
         if (tipo.equals(TipoEmpregado.HORISTA()) || tipo.equals(TipoEmpregado.ASSALARIADO()))
             throw new Exception("Tipo nao aplicavel.");
@@ -50,6 +78,15 @@ public class SistemaEmpregados {
         return new EmpregadoComissionado(nome, endereco, tipo, metodoPagamento, salarioConvertidoParaDouble, constroiMembroSindicato(false), comissaoConvertidaParaDouble);
     }
 
+    /**
+     * Obtém o ID de um empregado pelo nome e índice na lista.
+     *
+     * @param nome       Nome do empregado.
+     * @param index      Índice desejado.
+     * @param empregados Lista de empregados.
+     * @return ID do empregado.
+     * @throws EmpregadoNaoEncontradoPeloNomeException Lançada se o empregado não for encontrado pelo nome.
+     */
     public String getEmpregadoPorNome(String nome, int index, List<Empregado> empregados) throws EmpregadoNaoEncontradoPeloNomeException {
         var indexLista = index - 1;
         List<Empregado> listaDeEmpregados = empregados.stream().filter(empregado -> empregado.getNome().equals(nome)).toList();
@@ -58,6 +95,14 @@ public class SistemaEmpregados {
         return listaDeEmpregados.get(indexLista).getId();
     }
 
+    /**
+     * Altera o salário de um empregado.
+     *
+     * @param empregado Empregado a ter o salário alterado.
+     * @param valor     Novo valor do salário.
+     * @return Empregado com salário alterado.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraSalario(Empregado empregado, String valor) throws Exception {
         var salario = Utils.validarSalario(valor);
 
@@ -75,6 +120,14 @@ public class SistemaEmpregados {
         throw new Exception("Empregado invalido");
     }
 
+    /**
+     * Altera o status de sindicalizado de um empregado.
+     *
+     * @param empregado Empregado a ter o status alterado.
+     * @param valor     Novo valor do status (true ou false).
+     * @return Empregado com status alterado.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraSindicalizado(Empregado empregado, String valor) throws Exception {
         if (!(valor.equals("true") || valor.equals("false"))) {
             throw new BooleanException(Mensagens.valorNaoBooleano);
@@ -83,6 +136,19 @@ public class SistemaEmpregados {
         return empregado;
     }
 
+    /**
+     * Altera informações do empregado, como sindicalizado, ID do sindicato, taxa sindical, etc.
+     *
+     * @param empregado  Empregado a ter as informações alteradas.
+     * @param idEmpregado ID do empregado.
+     * @param atributo    Atributo a ser alterado.
+     * @param valor       Novo valor do atributo.
+     * @param idSindicato ID do sindicato.
+     * @param taxaSindical Taxa sindical.
+     * @param membros     Lista de membros sindicais.
+     * @return Empregado com informações alteradas.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraEmpregado(Empregado empregado, String idEmpregado, String atributo, Boolean valor, String idSindicato, String taxaSindical, List<String> membros) throws Exception {
         Utils.validarInformacoesSindicado("Identificacao do sindicato", idSindicato);
         Utils.validarInformacoesSindicado("Taxa sindical", taxaSindical);
@@ -99,6 +165,14 @@ public class SistemaEmpregados {
         return empregado;
     }
 
+    /**
+     * Altera o tipo de um empregado.
+     *
+     * @param empregado Empregado a ter o tipo alterado.
+     * @param valor     Novo valor do tipo.
+     * @return Empregado com tipo alterado.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraTipo(Empregado empregado, String valor) throws Exception {
         if (!empregadosRepository.tiposEmpregados.contains(valor))
             throw new TipoInvalidoException(Mensagens.tipoInvalido);
@@ -106,6 +180,14 @@ public class SistemaEmpregados {
         return empregado;
     }
 
+    /**
+     * Altera o método de pagamento de um empregado.
+     *
+     * @param empregado Empregado a ter o método de pagamento alterado.
+     * @param valor     Novo valor do método de pagamento.
+     * @return Empregado com método de pagamento alterado.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraMetodoPagamento(Empregado empregado, String valor) throws Exception {
         if (!empregadosRepository.metodosPagamento.contains(valor)) {
             throw new MetodoPagamentoInvalidoException(Mensagens.metodoPagamentoInvalido);
@@ -119,10 +201,31 @@ public class SistemaEmpregados {
         return empregado;
     }
 
+    /**
+     * Altera informações do empregado, como método de pagamento, banco, agência, conta corrente, etc.
+     *
+     * @param empregado      Empregado a ter as informações alteradas.
+     * @param atributo       Atributo a ser alterado.
+     * @param valor          Novo valor do atributo.
+     * @param banco          Nome do banco.
+     * @param agencia        Número da agência.
+     * @param contaCorrente  Número da conta corrente.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraEmpregado(Empregado empregado, String atributo, String valor, String banco, String agencia, String contaCorrente) throws Exception {
         if ("metodoPagamento".equals(atributo)) alteraMetodoPagamento(empregado, valor, banco, agencia, contaCorrente);
         return empregado;
     }
+    /**
+     * Altera informações do empregado, como tipo, convertendo para comissionado ou horista.
+     *
+     * @param empregado Empregado a ter as informações alteradas.
+     * @param atributo  Atributo a ser alterado.
+     * @param valor     Novo valor do atributo.
+     * @param dinheiros Valor da comissão ou salário, dependendo do tipo.
+     * @return Empregado com informações alteradas.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraEmpregado(Empregado empregado, String atributo, String valor, String dinheiros) throws Exception {
         if ("tipo".equals(atributo)) {
             if (TipoEmpregado.COMISSIONADO().equals(valor)) {
@@ -133,6 +236,15 @@ public class SistemaEmpregados {
         }
         return empregado;
     }
+    /**
+     * Altera informações do empregado, como sindicalizado, nome, endereço, tipo, método de pagamento, salário, comissão, etc.
+     *
+     * @param empregado Empregado a ter as informações alteradas.
+     * @param atributo  Atributo a ser alterado.
+     * @param valor     Novo valor do atributo.
+     * @return Empregado com informações alteradas.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public Empregado alteraEmpregado(Empregado empregado, String atributo, String valor) throws Exception {
         switch (atributo) {
             case "sindicalizado" -> {
@@ -162,6 +274,16 @@ public class SistemaEmpregados {
         return null;
     }
 
+    /**
+     * Altera o método de pagamento, banco, agência e conta corrente de um empregado.
+     *
+     * @param empregado      Empregado a ter as informações de método de pagamento alteradas.
+     * @param valor          Novo valor do método de pagamento.
+     * @param banco          Nome do banco.
+     * @param agencia        Número da agência.
+     * @param contaCorrente  Número da conta corrente.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public void alteraMetodoPagamento(Empregado empregado, String valor, String banco, String agencia, String contaCorrente) throws Exception {
         if (!empregadosRepository.metodosPagamento.contains(valor)) {
             throw new MetodoPagamentoInvalidoException(Mensagens.metodoPagamentoInvalido);
@@ -181,12 +303,28 @@ public class SistemaEmpregados {
         }
     }
 
+    /**
+     * Valida as informações de banco, agência e conta corrente.
+     *
+     * @param banco         Nome do banco.
+     * @param agencia       Número da agência.
+     * @param contaCorrente Número da conta corrente.
+     * @throws Exception Lançada se ocorrer algum erro durante a validação.
+     */
     private void validarInformacoesBanco(String banco, String agencia, String contaCorrente) throws Exception {
         Utils.validarInformacoesBanco("Banco", banco);
         Utils.validarInformacoesBanco("Agencia", agencia);
         Utils.validarInformacoesBanco("Conta corrente", contaCorrente);
     }
 
+    /**
+     * Altera a comissão de um empregado comissionado.
+     *
+     * @param empregado Empregado a ter a comissão alterada.
+     * @param valor     Novo valor da comissão.
+     * @return Empregado comissionado com comissão alterada.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     public EmpregadoComissionado alteraComissao(Empregado empregado, String valor) throws Exception {
         var comissao = Utils.validarComissao(valor);
 
@@ -198,17 +336,38 @@ public class SistemaEmpregados {
         return empregadoComissionado;
     }
 
+    /**
+     * Constrói um membro do sindicato.
+     *
+     * @param sindicalizado Valor indicando se o empregado é sindicalizado.
+     * @return Membro do sindicato criado.
+     */
     public MembroSindicato constroiMembroSindicato(Boolean sindicalizado) {
         var membro = new MembroSindicato();
         membro.setSindicalizado(sindicalizado);
         membro.setTaxaSindical(1.0);
         return membro;
     }
+
+    /**
+     * Valida os atributos de um empregado.
+     *
+     * @param atributo Atributo a ser validado.
+     * @throws AtributoInexistenteException Lançada se o atributo não existir.
+     */
     public void validarAtributosEmpregados(String atributo) throws AtributoInexistenteException {
         if (!empregadosRepository.atributosEmpregados.contains(atributo))
             throw new AtributoInexistenteException(Mensagens.atributoInexistente);
     }
 
+    /**
+     * Converte um empregado para comissionado.
+     *
+     * @param empregado Empregado a ser convertido.
+     * @param dinheiros Valor da comissão.
+     * @return Empregado comissionado resultante da conversão.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     private Empregado converteParaComissionado(Empregado empregado, String dinheiros) throws Exception {
         double comissaoDouble = Utils.converterStringParaDouble(dinheiros);
         if (empregado instanceof EmpregadoHorista) {
@@ -219,6 +378,14 @@ public class SistemaEmpregados {
         return null;
     }
 
+    /**
+     * Converte um empregado para horista.
+     *
+     * @param empregado Empregado a ser convertido.
+     * @param dinheiros Valor do salário.
+     * @return Empregado horista resultante da conversão.
+     * @throws Exception Lançada se ocorrer algum erro durante a operação.
+     */
     private EmpregadoHorista converteParaHorista(Empregado empregado, String dinheiros) throws Exception {
         EmpregadoComissionado emp = Utils.converteEmpregadoParaComissionado(empregado);
         double salarioDouble = Utils.converterStringParaDouble(dinheiros);

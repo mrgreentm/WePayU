@@ -4,6 +4,7 @@ public class Mensagens {
     public static String empregadoNaoComissionado = "Empregado nao eh comissionado.";
     public static String empregadoNaoHorista = "Empregado nao eh horista.";
     public static String empregadoNaoEncontradoPeloNome = "Nao ha empregado com esse nome.";
+    public static String empregadoNaoExiste = "Empregado nao existe.";
     public static String metodoPagamentoInvalido = "Metodo de pagamento invalido.";
     public static String atributoInexistente = "Atributo nao existe.";
     public static String valorNaoBooleano = "Valor deve ser true ou false.";
