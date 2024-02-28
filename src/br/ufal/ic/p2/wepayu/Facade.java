@@ -263,6 +263,10 @@ public class Facade {
         sistemaTaxaSindical.lancaTaxaServico(idMembro, data, valor);
     }
 
+    public String totalFolha(String data) {
+        return "0,00";
+    }
+
     private void substituiEmpregado(Empregado empregado) {
         empregadosRepository.removeEmpregado(empregado);
         empregadosRepository.addEmpregado(empregado);

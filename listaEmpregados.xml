@@ -8,7 +8,7 @@
    <string>Rua dos Jooes, 333 - Campina Grande</string>
   </void>
   <void property="id">
-   <string>5a5e898b-6f6e-4776-b36a-22e19e6d173c</string>
+   <string>d00fb047-19d5-416e-bbb2-748a0b712470</string>
   </void>
   <void property="membroSindicato">
    <object class="br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato">
