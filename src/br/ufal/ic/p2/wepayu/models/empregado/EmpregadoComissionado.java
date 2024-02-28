@@ -1,13 +1,15 @@
 package br.ufal.ic.p2.wepayu.models.empregado;
 
+import br.ufal.ic.p2.wepayu.interfaces.EmpregadoInterface;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
 import br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento;
+import br.ufal.ic.p2.wepayu.utils.Utils;
 
 /**
  * Classe que representa um empregado comissionado no sistema,
  * estendendo a classe base Empregado.
  */
-public class EmpregadoComissionado extends Empregado {
+public class EmpregadoComissionado extends Empregado implements EmpregadoInterface {
 
     private Double comissao;
     private Double salarioMensal;
@@ -83,6 +85,20 @@ public class EmpregadoComissionado extends Empregado {
         if (comissao < 0)
             throw new IllegalArgumentException("Comissao deve ser nao-negativa.");
         return comissao;
+    }
+
+    @Override
+    public void ajustaSalario(Double salario) {
+        this.salarioMensal = salario;
+    }
+    @Override
+    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws Exception {
+        return Utils.converterHoristaParaEmpregadoComissionado(comissao, (EmpregadoHorista)empregado);
+    }
+    @Override
+    public EmpregadoComissionado alteraComissao(double comissao) {
+        this.setComissao(comissao);
+        return this;
     }
 
 }

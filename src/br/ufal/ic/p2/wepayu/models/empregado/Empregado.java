@@ -1,8 +1,12 @@
 package br.ufal.ic.p2.wepayu.models.empregado;
 
 import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
+import br.ufal.ic.p2.wepayu.interfaces.EmpregadoInterface;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
 import br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento;
+import br.ufal.ic.p2.wepayu.utils.Mensagens;
+import br.ufal.ic.p2.wepayu.utils.Utils;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -12,7 +16,7 @@ import java.util.UUID;
  * Classe que representa um empregado no sistema.
  * Implementa a interface Serializable para permitir a serialização de objetos desta classe.
  */
-public class Empregado implements Serializable {
+public class Empregado implements Serializable, EmpregadoInterface {
     private String id;
     private String nome;
     private String endereco;
@@ -221,5 +225,15 @@ public class Empregado implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public void ajustaSalario(Double salario){}
+    @Override
+    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws Exception {
+        return Utils.converterHoristaParaEmpregadoComissionado(comissao, (EmpregadoHorista)empregado);
+    }
+    public EmpregadoComissionado alteraComissao(double comissao) throws EmpregadoNaoComissionadoException {
+        throw new EmpregadoNaoComissionadoException(Mensagens.empregadoNaoComissionado);
     }
 }

@@ -1,13 +1,17 @@
 package br.ufal.ic.p2.wepayu.models.empregado;
 
+import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
+import br.ufal.ic.p2.wepayu.interfaces.EmpregadoInterface;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
 import br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento;
+import br.ufal.ic.p2.wepayu.utils.Mensagens;
+import br.ufal.ic.p2.wepayu.utils.Utils;
 
 /**
  * Classe que representa um empregado horista no sistema,
  * estendendo a classe base Empregado.
  */
-public class EmpregadoHorista extends Empregado {
+public class EmpregadoHorista extends Empregado implements EmpregadoInterface {
 
     private Double salarioPorHora = 0.0;
 
@@ -51,5 +55,19 @@ public class EmpregadoHorista extends Empregado {
         if (salario < 0)
             throw new Exception("Salario deve ser nao-negativo.");
         else return salario;
+    }
+
+    @Override
+    public void ajustaSalario(Double salario) {
+        this.salarioPorHora = salario;
+    }
+
+    @Override
+    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws Exception {
+        return Utils.converterHoristaParaEmpregadoComissionado(comissao, (EmpregadoHorista)empregado);
+    }
+    @Override
+    public EmpregadoComissionado alteraComissao(double comissao) throws EmpregadoNaoComissionadoException {
+        throw new EmpregadoNaoComissionadoException(Mensagens.empregadoNaoComissionado);
     }
 }

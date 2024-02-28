@@ -105,18 +105,10 @@ public class SistemaEmpregados {
      */
     public Empregado alteraSalario(Empregado empregado, String valor) throws Exception {
         var salario = Utils.validarSalario(valor);
-
-        if (empregado instanceof EmpregadoAssalariado) {
-            var empregadoAssalariado = Utils.converteEmpregadoParaAssalariado(empregado);
-            empregadoAssalariado.setSalarioMensal(salario);
-            return empregadoAssalariado;
-        }
-
-        if (empregado instanceof EmpregadoComissionado) {
-            var empregadoComissionado = Utils.converteEmpregadoParaComissionado(empregado);
-            empregadoComissionado.setSalarioMensal(Utils.converterStringParaDouble(valor));
-            return empregadoComissionado;
-        }
+        empregado.ajustaSalario(salario);
+        if(!empregado.getId().isEmpty()) {
+                return empregado;
+            }
         throw new Exception("Empregado invalido");
     }
 
@@ -327,13 +319,8 @@ public class SistemaEmpregados {
      */
     public EmpregadoComissionado alteraComissao(Empregado empregado, String valor) throws Exception {
         var comissao = Utils.validarComissao(valor);
-
-        if (!(empregado instanceof EmpregadoComissionado)) {
-            throw new EmpregadoNaoComissionadoException(Mensagens.empregadoNaoComissionado);
-        }
-        var empregadoComissionado = Utils.converteEmpregadoParaComissionado(empregado);
-        empregadoComissionado.setComissao(comissao);
-        return empregadoComissionado;
+        empregado.alteraComissao(comissao);
+        return (EmpregadoComissionado) empregado;
     }
 
     /**
@@ -370,11 +357,8 @@ public class SistemaEmpregados {
      */
     private Empregado converteParaComissionado(Empregado empregado, String dinheiros) throws Exception {
         double comissaoDouble = Utils.converterStringParaDouble(dinheiros);
-        if (empregado instanceof EmpregadoHorista) {
-            return Utils.converterHoristaParaEmpregadoComissionado(comissaoDouble, (EmpregadoHorista) empregado);
-        } else if (empregado instanceof EmpregadoAssalariado) {
-            return Utils.converterAssalariadoParaEmpregadoComissionado(comissaoDouble, (EmpregadoAssalariado) empregado);
-        }
+        if(!empregado.getId().isEmpty())
+            return empregado.converteEmpregado(empregado, comissaoDouble);
         return null;
     }
 

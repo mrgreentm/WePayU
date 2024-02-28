@@ -77,9 +77,8 @@ public class Utils {
             while (true) {
                 try {
                     obj = decoder.readObject();
-                    if (obj instanceof Empregado) {
                         empregados.add((Empregado) obj);
-                    }
+
                 } catch (Exception ignored) {
                     break; // Não há mais objetos para ler
                 }
