@@ -1,6 +1,8 @@
 package br.ufal.ic.p2.wepayu.models.empregado;
 
 import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.AtributoInexistenteException;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.ConversaoEmpregadoException;
 import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
 import br.ufal.ic.p2.wepayu.interfaces.EmpregadoInterface;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
@@ -37,7 +39,7 @@ public class Empregado implements Serializable, EmpregadoInterface {
      * @param metodoPagamento Método de pagamento do empregado.
      * @throws Exception Exceção lançada em caso de erro na inicialização.
      */
-    public Empregado(String nome, String endereco, String tipo, MembroSindicato membroSindicato, MetodoPagamento metodoPagamento) throws Exception {
+    public Empregado(String nome, String endereco, String tipo, MembroSindicato membroSindicato, MetodoPagamento metodoPagamento) throws RuntimeException, AtributoInexistenteException {
         setId(UUID.randomUUID().toString());
         setNome(nome);
         setEndereco(endereco);
@@ -63,7 +65,7 @@ public class Empregado implements Serializable, EmpregadoInterface {
      * @param nome Nome a ser atribuído.
      * @throws Exception Exceção lançada se o nome for nulo ou vazio.
      */
-    public void setNome(String nome) throws Exception {
+    public void setNome(String nome) throws AtributoInexistenteException {
         this.nome = validaAtributo("Nome", nome);
     }
 
@@ -82,7 +84,7 @@ public class Empregado implements Serializable, EmpregadoInterface {
      * @param endereco Endereço a ser atribuído.
      * @throws Exception Exceção lançada se o endereço for nulo ou vazio.
      */
-    public void setEndereco(String endereco) throws Exception {
+    public void setEndereco(String endereco) throws AtributoInexistenteException {
         this.endereco = validaAtributo("Endereco", endereco);
     }
 
@@ -101,7 +103,7 @@ public class Empregado implements Serializable, EmpregadoInterface {
      * @param tipo Tipo a ser atribuído.
      * @throws Exception Exceção lançada se o tipo for inválido.
      */
-    public void setTipo(String tipo) throws Exception {
+    public void setTipo(String tipo) throws AtributoInexistenteException {
         this.tipo = validarTipo(validaAtributo("Tipo", tipo));
     }
 
@@ -184,9 +186,9 @@ public class Empregado implements Serializable, EmpregadoInterface {
      * @return Valor do atributo se válido.
      * @throws Exception Exceção lançada se o valor do atributo for nulo ou vazio.
      */
-    private String validaAtributo(String atributo, String valor) throws Exception {
+    private String validaAtributo(String atributo, String valor) throws AtributoInexistenteException {
         if (valor.isEmpty() || valor.isBlank())
-            throw new Exception(atributo + " nao pode ser nulo.");
+            throw new AtributoInexistenteException(atributo + " nao pode ser nulo.");
         else return valor;
     }
 
@@ -197,7 +199,7 @@ public class Empregado implements Serializable, EmpregadoInterface {
      * @return Tipo se válido.
      * @throws Exception Exceção lançada se o tipo for inválido.
      */
-    private String validarTipo(String tipo) throws Exception {
+    private String validarTipo(String tipo) throws AtributoInexistenteException {
         TipoEmpregado.validarTipo(tipo);
         return tipo;
     }
@@ -230,7 +232,7 @@ public class Empregado implements Serializable, EmpregadoInterface {
     @Override
     public void ajustaSalario(Double salario){}
     @Override
-    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws Exception {
+    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws AtributoInexistenteException {
         return Utils.converterHoristaParaEmpregadoComissionado(comissao, (EmpregadoHorista)empregado);
     }
     public EmpregadoComissionado alteraComissao(double comissao) throws EmpregadoNaoComissionadoException {

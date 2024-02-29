@@ -1,9 +1,7 @@
 package br.ufal.ic.p2.wepayu.utils;
 
 import br.ufal.ic.p2.wepayu.enums.TipoEmpregado;
-import br.ufal.ic.p2.wepayu.exceptions.empregados.AtributoInexistenteException;
-import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
-import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoSindicalizadoException;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.*;
 import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
 import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoAssalariado;
 import br.ufal.ic.p2.wepayu.models.empregado.EmpregadoComissionado;
@@ -42,12 +40,12 @@ public class Utils {
     public static EmpregadoHorista converteEmpregadoParaHorista(Empregado empregado) {
         return (EmpregadoHorista) empregado;
     }
-    public static Double converterStringParaDouble(String atributo, String valorString) throws Exception {
+    public static Double converterStringParaDouble(String atributo, String valorString) throws AtributoInexistenteException {
         if (valorString.isEmpty() || valorString.isBlank()) {
             return 0.0;
         }
         if(contemLetras(valorString)) {
-            throw new Exception(atributo+ " deve ser numeric" + (atributo.equals("Comissao") ? "a." : "o."));
+            throw new AtributoInexistenteException(atributo+ " deve ser numeric" + (atributo.equals("Comissao") ? "a." : "o."));
         }
         String valorFormatado = valorString.replace(',', '.');
         return Double.parseDouble(valorFormatado);
@@ -158,7 +156,7 @@ public class Utils {
         return empregados;
     }
 
-    public static String getAtributoEmpregadoComissionado(String atributo, EmpregadoComissionado empregado) throws Exception {
+    public static String getAtributoEmpregadoComissionado(String atributo, EmpregadoComissionado empregado) throws EmpregadoNaoRecebeEmBancoException, EmpregadoNaoSindicalizadoException, AtributoInexistenteException {
         return switch (atributo) {
             case "nome" -> empregado.getNome();
             case "endereco" -> empregado.getEndereco();
@@ -175,7 +173,7 @@ public class Utils {
             default -> throw new AtributoInexistenteException(Mensagens.atributoInexistente);
         };
     }
-    public static String getAtributoEmpregadoHorista(String atributo, EmpregadoHorista empregado) throws Exception {
+    public static String getAtributoEmpregadoHorista(String atributo, EmpregadoHorista empregado) throws EmpregadoNaoComissionadoException, EmpregadoNaoRecebeEmBancoException, EmpregadoNaoSindicalizadoException, AtributoInexistenteException {
         return switch (atributo) {
             case "nome" -> empregado.getNome();
             case "endereco" -> empregado.getEndereco();
@@ -192,7 +190,7 @@ public class Utils {
             default -> throw new AtributoInexistenteException(Mensagens.atributoInexistente);
         };
     }
-    public static String getAtributoEmpregadoAssalariado(String atributo, EmpregadoAssalariado empregado) throws Exception {
+    public static String getAtributoEmpregadoAssalariado(String atributo, EmpregadoAssalariado empregado) throws EmpregadoNaoComissionadoException, EmpregadoNaoRecebeEmBancoException, EmpregadoNaoSindicalizadoException, AtributoInexistenteException {
         return switch (atributo) {
             case "nome" -> empregado.getNome();
             case "endereco" -> empregado.getEndereco();
@@ -218,32 +216,32 @@ public class Utils {
             return "correios";
         return "";
     }
-    public static String getIdSindicato(MembroSindicato membroSindicato) throws Exception {
+    public static String getIdSindicato(MembroSindicato membroSindicato) throws EmpregadoNaoSindicalizadoException {
         if(!membroSindicato.getSindicalizado())
             throw new EmpregadoNaoSindicalizadoException(Mensagens.empregadoNaoSindicalizado);
         return membroSindicato.getIdMembro();
     }
-    public static String getTaxaSindical(MembroSindicato membroSindicato) throws Exception {
+    public static String getTaxaSindical(MembroSindicato membroSindicato) throws EmpregadoNaoSindicalizadoException {
         if(!membroSindicato.getSindicalizado())
             throw new EmpregadoNaoSindicalizadoException(Mensagens.empregadoNaoSindicalizado);
         return formatarSalario(membroSindicato.getTaxaSindical()).replace(".",",");
     }
-    public static String retornaBanco(MetodoPagamento metodoPagamento) throws Exception {
+    public static String retornaBanco(MetodoPagamento metodoPagamento) throws EmpregadoNaoRecebeEmBancoException {
         if(!metodoPagamento.getRecebePorBanco())
-            throw new Exception("Empregado nao recebe em banco.");
+            throw new EmpregadoNaoRecebeEmBancoException("Empregado nao recebe em banco.");
         return metodoPagamento.getBanco().getBanco();
     }
-    public static String retornaAgencia(MetodoPagamento metodoPagamento) throws Exception {
+    public static String retornaAgencia(MetodoPagamento metodoPagamento) throws EmpregadoNaoRecebeEmBancoException {
         if(!metodoPagamento.getRecebePorBanco())
-            throw new Exception("Empregado nao recebe em banco.");
+            throw new EmpregadoNaoRecebeEmBancoException("Empregado nao recebe em banco.");
         return metodoPagamento.getBanco().getAgencia();
     }
-    public static String retornaConta(MetodoPagamento metodoPagamento) throws Exception {
+    public static String retornaConta(MetodoPagamento metodoPagamento) throws EmpregadoNaoRecebeEmBancoException {
         if(!metodoPagamento.getRecebePorBanco())
-            throw new Exception("Empregado nao recebe em banco.");
+            throw new EmpregadoNaoRecebeEmBancoException("Empregado nao recebe em banco.");
         return metodoPagamento.getBanco().getContaCorrente();
     }
-    public static boolean validarData(String data, String campo) throws Exception {
+    public static boolean validarData(String data, String campo) {
         // Verifica se a string tem o formato correto
         if (!data.matches("^\\d{1,2}(\\/|-)\\d{1,2}(\\/|-)\\d{4}$")) {
             return false;
@@ -297,7 +295,7 @@ public class Utils {
         return valorFormatado;
     }
 
-    public static EmpregadoComissionado converterAssalariadoParaEmpregadoComissionado(Double comissao,EmpregadoAssalariado empregado) throws Exception {
+    public static EmpregadoComissionado converterAssalariadoParaEmpregadoComissionado(Double comissao,EmpregadoAssalariado empregado) throws AtributoInexistenteException {
         EmpregadoComissionado empregadoComissionado = new EmpregadoComissionado();
 
         empregadoComissionado.setNome(empregado.getNome());
@@ -310,7 +308,7 @@ public class Utils {
         empregadoComissionado.setId(empregado.getId());
         return empregadoComissionado;
     }
-    public static EmpregadoComissionado converterHoristaParaEmpregadoComissionado(Double comissao,EmpregadoHorista empregado) throws Exception {
+    public static EmpregadoComissionado converterHoristaParaEmpregadoComissionado(Double comissao,EmpregadoHorista empregado) throws  AtributoInexistenteException {
         EmpregadoComissionado empregadoComissionado = new EmpregadoComissionado();
         empregadoComissionado.setNome(empregado.getNome());
         empregadoComissionado.setEndereco(empregado.getEndereco());
@@ -322,7 +320,7 @@ public class Utils {
         empregadoComissionado.setId(empregado.getId());
         return empregadoComissionado;
     }
-    public static EmpregadoHorista converterComissionadoParaEmpregadoHorista(Double salarioPorHora, EmpregadoComissionado emp) throws Exception {
+    public static EmpregadoHorista converterComissionadoParaEmpregadoHorista(Double salarioPorHora, EmpregadoComissionado emp) throws ConversaoEmpregadoException, AtributoInexistenteException {
         EmpregadoHorista empregadoHorista = new EmpregadoHorista();
         empregadoHorista.setNome(emp.getNome());
         empregadoHorista.setEndereco(emp.getEndereco());
@@ -333,32 +331,32 @@ public class Utils {
         empregadoHorista.setId(emp.getId());
         return empregadoHorista;
     }
-    public static Double validarSalario(String salario) throws Exception {
+    public static Double validarSalario(String salario) throws TipoInvalidoException {
         if(salario.isBlank() || salario.isEmpty())
-            throw new Exception("Salario nao pode ser nulo.");
+            throw new TipoInvalidoException("Salario nao pode ser nulo.");
         if(contemLetras(salario))
-            throw new Exception("Salario deve ser numerico.");
+            throw new TipoInvalidoException("Salario deve ser numerico.");
         var salarioDouble = converterStringParaDouble(salario);
         if(salarioDouble < 0)
-            throw new Exception("Salario deve ser nao-negativo.");
+            throw new TipoInvalidoException("Salario deve ser nao-negativo.");
         return salarioDouble;
     }
-    public static Double validarComissao(String comissao) throws Exception {
+    public static Double validarComissao(String comissao) throws TipoInvalidoException {
         if(comissao.isBlank() || comissao.isEmpty())
-            throw new Exception("Comissao nao pode ser nula.");
+            throw new TipoInvalidoException("Comissao nao pode ser nula.");
         if(contemLetras(comissao))
-            throw new Exception("Comissao deve ser numerica.");
+            throw new TipoInvalidoException("Comissao deve ser numerica.");
         var comissaoDouble = converterStringParaDouble(comissao);
         if(comissaoDouble < 0)
-            throw new Exception("Comissao deve ser nao-negativa.");
+            throw new TipoInvalidoException("Comissao deve ser nao-negativa.");
         return comissaoDouble;
     }
-    public static void validarInformacoesBanco(String campo, String valor) throws Exception {
+    public static void validarInformacoesBanco(String campo, String valor) throws AtributoInexistenteException {
         if(valor.isBlank() || valor.isEmpty())
-            throw new Exception(campo+" nao pode ser nulo.");
+            throw new AtributoInexistenteException(campo+" nao pode ser nulo.");
     }
-    public static void validarInformacoesSindicado(String campo, String valor) throws Exception {
+    public static void validarInformacoesSindicado(String campo, String valor) throws AtributoInexistenteException {
         if(valor.isBlank() || valor.isEmpty())
-            throw new Exception(campo+" nao pode ser nula.");
+            throw new AtributoInexistenteException(campo+" nao pode ser nula.");
     }
 }

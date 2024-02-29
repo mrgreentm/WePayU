@@ -82,7 +82,7 @@ public class EmpregadosRepository {
      * @param horas       Horas trabalhadas.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public void addDadoEmpregadoSistemaFolha(String idEmpregado, String data, String horas) throws Exception {
+    public void addDadoEmpregadoSistemaFolha(String idEmpregado, String data, String horas)  {
         var cartao = new CartaoPontoSistemaFolha(idEmpregado, data, horas);
         dadosEmpregadoSistemaFolhas.adicionaCartao(cartao);
         Utils.salvarDadosFolhaEmXML(dadosEmpregadoSistemaFolhas, "./listaDadosSistemaFolhas.xml");
@@ -96,7 +96,7 @@ public class EmpregadosRepository {
      * @param valor       Valor das vendas.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public void addDadoEmpregadoSistemaVendas(String idEmpregado, String data, String valor) throws Exception {
+    public void addDadoEmpregadoSistemaVendas(String idEmpregado, String data, String valor) {
         var venda = new CartaoVendaSistemaVendas(idEmpregado, data, valor);
         dadosEmpregadoSistemaVendas.adicionaVenda(venda);
         Utils.salvarDadosVendasEmXML(dadosEmpregadoSistemaVendas, "./listaDadosSistemaVendas.xml");
@@ -151,7 +151,7 @@ public class EmpregadosRepository {
      * @return Lista de cartões de taxa.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public List<CartaoSistemaTaxaServico> retornaTaxasPeloIdDoEmpregado(String idEmpregado) throws Exception {
+    public List<CartaoSistemaTaxaServico> retornaTaxasPeloIdDoEmpregado(String idEmpregado) {
         if (dadosEmpregadoSistemaTaxaSindical.getTaxas().isEmpty())
             dadosEmpregadoSistemaTaxaSindical = Utils.carregarDadosSistemaTaxaSindicalDeXML("./listaDadosSistemaTaxaSindical.xml");
         return dadosEmpregadoSistemaTaxaSindical

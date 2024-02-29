@@ -12,6 +12,7 @@ import br.ufal.ic.p2.wepayu.utils.Utils;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +36,7 @@ public class SistemaTaxaSindical  {
      * @return Valor total das taxas de serviço formatado.
      * @throws Exception Se ocorrerem erros durante a validação ou cálculo.
      */
-    public String getTaxasServico(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getTaxasServico(String idEmpregado, String dataInicial, String dataFinal) throws SistemaTaxasSindicaisException, ParseException {
         if(!validarData(dataInicial, ""))
             throw new SistemaTaxasSindicaisException(Mensagens.dataInicialInvalida);
         if(!validarData(dataFinal, ""))
@@ -73,7 +74,7 @@ public class SistemaTaxaSindical  {
      * @return Valor total das taxas de serviço no intervalo.
      * @throws Exception Se ocorrerem erros durante o cálculo.
      */
-    public static double calcularTaxas(List<CartaoSistemaTaxaServico> taxas, String dataInicial, String dataFinal) throws Exception {
+    public static double calcularTaxas(List<CartaoSistemaTaxaServico> taxas, String dataInicial, String dataFinal) throws SistemaTaxasSindicaisException, ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("d/M/yyyy");
         Date inicio = sdf.parse(dataInicial);
         Date fim = sdf.parse(dataFinal);

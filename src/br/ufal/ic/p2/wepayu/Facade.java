@@ -1,7 +1,9 @@
 package br.ufal.ic.p2.wepayu;
 
-import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoEncontradoException;
-import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.IdentificacaoMembroNulaException;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.*;
+import br.ufal.ic.p2.wepayu.exceptions.sistemafolha.SistemaFolhaException;
+import br.ufal.ic.p2.wepayu.exceptions.sistemasindicato.*;
+import br.ufal.ic.p2.wepayu.exceptions.sistemavendas.SistemaVendasException;
 import br.ufal.ic.p2.wepayu.models.empregado.Empregado;
 
 import br.ufal.ic.p2.wepayu.repositories.EmpregadosRepository;
@@ -11,6 +13,7 @@ import br.ufal.ic.p2.wepayu.services.sistemastaxasindical.SistemaTaxaSindical;
 import br.ufal.ic.p2.wepayu.services.sistemavendas.SistemaVendas;
 import br.ufal.ic.p2.wepayu.utils.Utils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +56,7 @@ public class Facade {
      * @param atributo    atributo do empregado a ser recuperado.
      * @throws Exception é lançada quando não é possível recuperar o atributo do empregado.
      */
-    public String getAtributoEmpregado(String idEmpregado, String atributo) throws Exception {
+    public String getAtributoEmpregado(String idEmpregado, String atributo) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, EmpregadoNaoSindicalizadoException, EmpregadoNaoRecebeEmBancoException, EmpregadoNaoComissionadoException, AtributoInexistenteException {
         Empregado empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         return sistemaEmpregados.getAtributoEmpregado(empregado, atributo);
     }
@@ -68,7 +71,7 @@ public class Facade {
      * @return o ID do empregado criado.
      * @throws Exception é lançada quando há algum erro na criação do empregado.
      */
-    public String criarEmpregado(String nome, String endereco, String tipo, String salario) throws Exception {
+    public String criarEmpregado(String nome, String endereco, String tipo, String salario) throws TipoInvalidoException, AtributoInexistenteException {
         var empregado = sistemaEmpregados.criarEmpregado(nome, endereco, tipo, salario);
         empregadosRepository.addEmpregado(empregado);
         return empregado.getId();
@@ -85,7 +88,7 @@ public class Facade {
      * @return o ID do empregado criado.
      * @throws Exception é lançada quando há algum erro na criação do empregado.
      */
-    public String criarEmpregado(String nome, String endereco, String tipo, String salario, String comissao) throws Exception {
+    public String criarEmpregado(String nome, String endereco, String tipo, String salario, String comissao) throws TipoInvalidoException, AtributoInexistenteException {
         var empregado = sistemaEmpregados.criarEmpregado(nome, endereco, tipo, salario, comissao);
         empregadosRepository.addEmpregado(empregado);
         return empregado.getId();
@@ -99,7 +102,7 @@ public class Facade {
      * @return o ID do empregado encontrado.
      * @throws Exception é lançada quando não é possível encontrar o empregado.
      */
-    public String getEmpregadoPorNome(String nome, int index) throws Exception {
+    public String getEmpregadoPorNome(String nome, int index) throws EmpregadoNaoEncontradoPeloNomeException {
         return sistemaEmpregados.getEmpregadoPorNome(nome, index, empregadosRepository.getAllEmpregados());
     }
 
@@ -112,7 +115,7 @@ public class Facade {
      * @return o total de horas normais trabalhadas.
      * @throws Exception é lançada quando há algum erro no cálculo das horas.
      */
-    public String getHorasNormaisTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getHorasNormaisTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, EmpregadoNaoHoristaException, SistemaFolhaException, ParseException {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         sistemaFolha.validarEmpregadoHorista(empregado);
         return sistemaFolha.getHorasNormaisTrabalhadas(idEmpregado, dataInicial, dataFinal);
@@ -127,7 +130,7 @@ public class Facade {
      * @return o total de horas extras trabalhadas.
      * @throws Exception é lançada quando há algum erro no cálculo das horas extras.
      */
-    public String getHorasExtrasTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getHorasExtrasTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, EmpregadoNaoHoristaException, SistemaFolhaException, ParseException {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         sistemaFolha.validarEmpregadoHorista(empregado);
         return sistemaFolha.getHorasExtrasTrabalhadas(idEmpregado, dataInicial, dataFinal);
@@ -142,7 +145,7 @@ public class Facade {
      * @return o total de vendas realizadas.
      * @throws Exception é lançada quando há algum erro na obtenção das vendas.
      */
-    public String getVendasRealizadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getVendasRealizadas(String idEmpregado, String dataInicial, String dataFinal) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, EmpregadoNaoComissionadoException, SistemaVendasException, ParseException {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         sistemaVendas.validarEmpregadoComissionado(empregado);
         return sistemaVendas.getVendasRealizadas(idEmpregado, dataInicial, dataFinal);
@@ -156,7 +159,7 @@ public class Facade {
      * @param valor        valor da venda.
      * @throws Exception é lançada quando há algum erro no lançamento da venda.
      */
-    public void lancaVenda(String idEmpregado, String data, String valor) throws Exception {
+    public void lancaVenda(String idEmpregado, String data, String valor) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, EmpregadoNaoComissionadoException, SistemaVendasException {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         sistemaVendas.validarEmpregadoComissionado(empregado);
         sistemaVendas.lancaVenda(idEmpregado, data, valor);
@@ -170,7 +173,7 @@ public class Facade {
      * @param horas        horas trabalhadas no cartão.
      * @throws Exception é lançada quando há algum erro no lançamento do cartão de ponto.
      */
-    public void lancaCartao(String idEmpregado, String data, String horas) throws Exception {
+    public void lancaCartao(String idEmpregado, String data, String horas) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, SistemaFolhaException, EmpregadoNaoHoristaException {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         sistemaFolha.lancaCartao(empregado, idEmpregado, data, horas);
     }
@@ -183,7 +186,7 @@ public class Facade {
      * @param valor        novo valor do atributo.
      * @throws Exception é lançada quando há algum erro na alteração do atributo.
      */
-    public void alteraEmpregado(String idEmpregado, String atributo, String valor) throws Exception {
+    public void alteraEmpregado(String idEmpregado, String atributo, String valor) throws AtributoInexistenteException, EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, TipoInvalidoException, ConversaoEmpregadoException, BooleanException, MetodoPagamentoInvalidoException, EmpregadoNaoComissionadoException {
         sistemaEmpregados.validarAtributosEmpregados(atributo);
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         substituiEmpregado(sistemaEmpregados.alteraEmpregado(empregado, atributo, valor));
@@ -198,7 +201,7 @@ public class Facade {
      * @param dinheiros    lista de dinheiro.
      * @throws Exception é lançada quando há algum erro na alteração do atributo.
      */
-    public void alteraEmpregado(String idEmpregado, String atributo, String valor, String dinheiros) throws Exception {
+    public void alteraEmpregado(String idEmpregado, String atributo, String valor, String dinheiros) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, ConversaoEmpregadoException, AtributoInexistenteException {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         substituiEmpregado(sistemaEmpregados.alteraEmpregado(empregado, atributo, valor, dinheiros));
     }
@@ -214,7 +217,7 @@ public class Facade {
      * @param contaCorrente conta corrente do empregado.
      * @throws Exception é lançada quando há algum erro na alteração do atributo.
      */
-    public void alteraEmpregado(String idEmpregado, String atributo, String valor, String banco, String agencia, String contaCorrente) throws Exception {
+    public void alteraEmpregado(String idEmpregado, String atributo, String valor, String banco, String agencia, String contaCorrente) throws EmpregadoNaoEncontradoException, IdentificacaoMembroNulaException, MetodoPagamentoInvalidoException, AtributoInexistenteException {
         Empregado empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         substituiEmpregado(sistemaEmpregados.alteraEmpregado(empregado, atributo, valor, banco, agencia, contaCorrente));
     }
@@ -229,7 +232,7 @@ public class Facade {
      * @param taxaSindical taxa sindical.
      * @throws Exception é lançada quando há algum erro na alteração do empregado.
      */
-    public void alteraEmpregado(String idEmpregado, String atributo, Boolean valor, String idSindicato, String taxaSindical) throws Exception {
+    public void alteraEmpregado(String idEmpregado, String atributo, Boolean valor, String idSindicato, String taxaSindical) throws IdentificacaoMembroNulaException, EmpregadoNaoEncontradoException, EmpregadoDuplicadoSindicatoException, TaxaSindicalNegativaException, TaxaSindicalNaoNumericaException, AtributoInexistenteException {
         var empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         substituiEmpregado(sistemaEmpregados.alteraEmpregado(empregado, idEmpregado, atributo, valor, idSindicato, taxaSindical, listaIdMembros));
     }
@@ -243,7 +246,7 @@ public class Facade {
      * @return as taxas de serviço do empregado sindicalizado.
      * @throws Exception é lançada quando há algum erro na obtenção das taxas de serviço.
      */
-    public String getTaxasServico(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getTaxasServico(String idEmpregado, String dataInicial, String dataFinal) throws IdentificacaoMembroNulaException, EmpregadoNaoEncontradoException, EmpregadoNaoSindicalizadoException, MembroSindicatoInexistente, SistemaTaxasSindicaisException, ParseException {
         Empregado empregado = empregadosRepository.getEmpregadoById(idEmpregado);
         sistemaTaxaSindical.validarEmpregadoSindicalizado(empregado);
         String idMembro = empregado.getMembroSindicato().getIdMembro();

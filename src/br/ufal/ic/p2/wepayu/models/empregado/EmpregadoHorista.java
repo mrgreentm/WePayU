@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.wepayu.models.empregado;
 
+import br.ufal.ic.p2.wepayu.exceptions.empregados.AtributoInexistenteException;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.ConversaoEmpregadoException;
 import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
 import br.ufal.ic.p2.wepayu.interfaces.EmpregadoInterface;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
@@ -63,7 +65,7 @@ public class EmpregadoHorista extends Empregado implements EmpregadoInterface {
     }
 
     @Override
-    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws Exception {
+    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws AtributoInexistenteException {
         return Utils.converterHoristaParaEmpregadoComissionado(comissao, (EmpregadoHorista)empregado);
     }
     @Override

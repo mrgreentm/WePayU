@@ -11,6 +11,7 @@ import br.ufal.ic.p2.wepayu.utils.Utils;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -30,7 +31,7 @@ public class SistemaVendas {
      * @return String representando o total de vendas formatado.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public String getVendasRealizadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getVendasRealizadas(String idEmpregado, String dataInicial, String dataFinal) throws SistemaVendasException, ParseException {
         // Validar as datas fornecidas
         if (!validarData(dataInicial, ""))
             throw new SistemaVendasException(Mensagens.dataInicialInvalida);
@@ -53,7 +54,7 @@ public class SistemaVendas {
      * @param valor       Valor da venda.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public void lancaVenda(String idEmpregado, String data, String valor) throws Exception {
+    public void lancaVenda(String idEmpregado, String data, String valor) throws SistemaVendasException {
         // Validar a data e o valor
         if (!validarData(data, ""))
             throw new SistemaVendasException(Mensagens.dataInvalida);
@@ -75,7 +76,7 @@ public class SistemaVendas {
      * @return Total de vendas no intervalo.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public static double calcularVendas(List<CartaoVendaSistemaVendas> vendas, String dataInicial, String dataFinal) throws Exception {
+    public static double calcularVendas(List<CartaoVendaSistemaVendas> vendas, String dataInicial, String dataFinal) throws SistemaVendasException, ParseException {
         // Converter as datas
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date inicio = sdf.parse(dataInicial);

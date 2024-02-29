@@ -1,17 +1,19 @@
 package br.ufal.ic.p2.wepayu.enums;
 
+import br.ufal.ic.p2.wepayu.exceptions.empregados.AtributoInexistenteException;
+
 public enum TipoEmpregado {
     HORISTA,
     ASSALARIADO,
     COMISSIONADO;
 
-    public static void validarTipo(String tipo) throws Exception {
+    public static void validarTipo(String tipo) throws AtributoInexistenteException {
         for (TipoEmpregado tipoEmpregado : TipoEmpregado.values()) {
             if (tipoEmpregado.name().equalsIgnoreCase(tipo)) {
                 return;
             }
         }
-        throw new Exception("Tipo invalido.");
+        throw new AtributoInexistenteException("Tipo invalido.");
     }
  public static String HORISTA() {
         return "horista";

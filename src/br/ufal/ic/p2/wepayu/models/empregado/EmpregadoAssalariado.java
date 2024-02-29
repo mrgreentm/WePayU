@@ -1,5 +1,6 @@
 package br.ufal.ic.p2.wepayu.models.empregado;
 
+import br.ufal.ic.p2.wepayu.exceptions.empregados.AtributoInexistenteException;
 import br.ufal.ic.p2.wepayu.exceptions.empregados.EmpregadoNaoComissionadoException;
 import br.ufal.ic.p2.wepayu.interfaces.EmpregadoInterface;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
@@ -26,7 +27,7 @@ public class EmpregadoAssalariado extends Empregado implements EmpregadoInterfac
      * @param sindicalizado   Informações de sindicalização do empregado.
      * @throws Exception Exceção lançada em caso de erro na inicialização.
      */
-    public EmpregadoAssalariado(String nome, String endereco, String tipo, MetodoPagamento metodoPagamento, Double salarioMensal, MembroSindicato sindicalizado) throws Exception {
+    public EmpregadoAssalariado(String nome, String endereco, String tipo, MetodoPagamento metodoPagamento, Double salarioMensal, MembroSindicato sindicalizado) throws AtributoInexistenteException {
         super(nome, endereco, tipo, sindicalizado, metodoPagamento);
         setSalarioMensal(validarSalario(salarioMensal));
     }
@@ -59,11 +60,11 @@ public class EmpregadoAssalariado extends Empregado implements EmpregadoInterfac
      * @return Salário se válido.
      * @throws Exception Exceção lançada se o salário for nulo, zero ou negativo.
      */
-    public Double validarSalario(Double salario) throws Exception {
+    public Double validarSalario(Double salario) throws AtributoInexistenteException {
         if (salario.isNaN() || salario == 0)
-            throw new Exception("Salario nao pode ser nulo.");
+            throw new AtributoInexistenteException("Salario nao pode ser nulo.");
         if (salario < 0)
-            throw new Exception("Salario deve ser nao-negativo.");
+            throw new AtributoInexistenteException("Salario deve ser nao-negativo.");
         else return salario;
     }
 
@@ -72,7 +73,7 @@ public class EmpregadoAssalariado extends Empregado implements EmpregadoInterfac
         this.salarioMensal = salario;
     }
     @Override
-    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws Exception {
+    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws AtributoInexistenteException {
         return Utils.converterAssalariadoParaEmpregadoComissionado(comissao, (EmpregadoAssalariado)empregado);
     }
     @Override

@@ -12,6 +12,7 @@ import br.ufal.ic.p2.wepayu.utils.Utils;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +36,7 @@ public class SistemaFolha {
      * @return String representando o total de horas normais trabalhadas.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public String getHorasNormaisTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getHorasNormaisTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws SistemaFolhaException, ParseException {
         // Validar as datas fornecidas
         if (!validarData(dataFinal, "final"))
             throw new SistemaFolhaException(Mensagens.dataFinalInvalida);
@@ -68,7 +69,7 @@ public class SistemaFolha {
      * @return String representando o total de horas extras trabalhadas.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public String getHorasExtrasTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws Exception {
+    public String getHorasExtrasTrabalhadas(String idEmpregado, String dataInicial, String dataFinal) throws SistemaFolhaException, ParseException {
         // Validar as datas fornecidas
         if (!validarData(dataFinal, "final"))
             throw new SistemaFolhaException(Mensagens.dataFinalInvalida);
@@ -97,7 +98,7 @@ public class SistemaFolha {
      * @param horas        Horas trabalhadas no lançamento.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public void lancaCartao(Empregado empregado, String idEmpregado, String data, String horas) throws Exception {
+    public void lancaCartao(Empregado empregado, String idEmpregado, String data, String horas) throws SistemaFolhaException, EmpregadoNaoHoristaException {
         // Verificar se o empregado é do tipo horista
         validarEmpregadoHorista(empregado);
 
@@ -122,7 +123,7 @@ public class SistemaFolha {
      * @return Total de horas extras no intervalo.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public static double calcularSomaHorasExtrasNoIntervalo(List<CartaoPontoSistemaFolha> listaPonto, String dataInicial, String dataFinal) throws Exception {
+    public static double calcularSomaHorasExtrasNoIntervalo(List<CartaoPontoSistemaFolha> listaPonto, String dataInicial, String dataFinal) throws SistemaFolhaException, ParseException {
         // Converter as datas
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date inicio = sdf.parse(dataInicial);
@@ -177,7 +178,7 @@ public class SistemaFolha {
      * @return Total de horas normais trabalhadas no intervalo.
      * @throws Exception Lançada se ocorrer algum erro durante a operação.
      */
-    public static double calcularHorasTrabalhadas(List<CartaoPontoSistemaFolha> listaPonto, String dataInicial, String dataFinal) throws Exception {
+    public static double calcularHorasTrabalhadas(List<CartaoPontoSistemaFolha> listaPonto, String dataInicial, String dataFinal) throws ParseException, SistemaFolhaException {
         // Converter as datas
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         Date inicio = sdf.parse(dataInicial);

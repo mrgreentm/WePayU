@@ -1,5 +1,7 @@
 package br.ufal.ic.p2.wepayu.models.empregado;
 
+import br.ufal.ic.p2.wepayu.exceptions.empregados.AtributoInexistenteException;
+import br.ufal.ic.p2.wepayu.exceptions.empregados.ConversaoEmpregadoException;
 import br.ufal.ic.p2.wepayu.interfaces.EmpregadoInterface;
 import br.ufal.ic.p2.wepayu.models.sistemasindicato.MembroSindicato;
 import br.ufal.ic.p2.wepayu.models.metodopagamento.MetodoPagamento;
@@ -29,7 +31,7 @@ public class EmpregadoComissionado extends Empregado implements EmpregadoInterfa
      * @param comissao        Valor da comissão do empregado comissionado.
      * @throws Exception Exceção lançada em caso de erro na inicialização.
      */
-    public EmpregadoComissionado(String nome, String endereco, String tipo, MetodoPagamento metodoPagamento, Double salario, MembroSindicato sindicalizado, Double comissao) throws Exception {
+    public EmpregadoComissionado(String nome, String endereco, String tipo, MetodoPagamento metodoPagamento, Double salario, MembroSindicato sindicalizado, Double comissao) throws RuntimeException, AtributoInexistenteException {
         super(nome, endereco, tipo, sindicalizado, metodoPagamento);
         setComissao(validarComissao(comissao));
         setSalarioMensal(salario);
@@ -92,7 +94,7 @@ public class EmpregadoComissionado extends Empregado implements EmpregadoInterfa
         this.salarioMensal = salario;
     }
     @Override
-    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws Exception {
+    public EmpregadoComissionado converteEmpregado(Empregado empregado, Double comissao) throws  AtributoInexistenteException {
         return Utils.converterHoristaParaEmpregadoComissionado(comissao, (EmpregadoHorista)empregado);
     }
     @Override
